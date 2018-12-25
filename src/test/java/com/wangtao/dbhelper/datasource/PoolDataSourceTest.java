@@ -9,18 +9,18 @@ import java.sql.Connection;
 import java.util.Properties;
 
 /**
- * Created by wangtao at 2018/12/24 15:54
+ * Created by wangtao at 2018/12/25 14:09
  */
-public class SimpleDataSourceTest {
+public class PoolDataSourceTest {
 
     @Test
-    public void getConnection() throws Exception {
+    public void connection() throws Exception {
         Properties properties = new Properties();
         properties.load(Resources.getResourceAsReader("db.properties"));
-        DataSource dataSource = SimpleDataSourceFactory.instance().getDataSource(properties);
+        DataSource dataSource = PoolDataSourceFactory.instance().getDataSource(properties);
         Connection connection = dataSource.getConnection();
         Assert.assertNotNull(connection);
         Assert.assertTrue(connection.getAutoCommit());
-        Assert.assertEquals(Connection.TRANSACTION_REPEATABLE_READ, connection.getTransactionIsolation());
+        connection.close();
     }
 }

@@ -37,6 +37,10 @@ public class SimpleDataSource implements DataSource {
         }
     }
 
+    public SimpleDataSource() {
+
+    }
+
     public SimpleDataSource(String driver, String url, String username, String password) {
         this.driver = driver;
         this.url = url;

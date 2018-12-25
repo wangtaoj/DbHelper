@@ -4,15 +4,13 @@ import javax.sql.DataSource;
 import java.util.Properties;
 
 /**
- * Created by wangtao at 2018/12/24 15:50
+ * Created by wangtao at 2018/12/25 14:10
  */
-public class SimpleDataSourceFactory implements DataSourceFactory {
-
-    private SimpleDataSourceFactory() {}
+public class PoolDataSourceFactory implements DataSourceFactory {
 
     @Override
     public DataSource getDataSource(Properties properties) {
-        return new SimpleDataSource(properties);
+        return new PoolDataSource(properties);
     }
 
     public static DataSourceFactory instance() {
@@ -20,10 +18,10 @@ public class SimpleDataSourceFactory implements DataSourceFactory {
     }
 
     private static class Holder {
-        private static DataSourceFactory factory = new SimpleDataSourceFactory();
+        private static DataSourceFactory dataSourceFactory = new PoolDataSourceFactory();
 
         static DataSourceFactory getInstance() {
-            return factory;
+            return dataSourceFactory;
         }
     }
 }

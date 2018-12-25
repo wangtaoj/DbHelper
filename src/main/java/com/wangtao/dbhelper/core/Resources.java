@@ -1,0 +1,38 @@
+package com.wangtao.dbhelper.core;
+
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.Reader;
+
+/**
+ * Created by wangtao at 2018/12/24 15:58
+ */
+public class Resources {
+
+    private Resources() {
+
+    }
+
+    /**
+     * 读取资源
+     * @param resource 资源名字
+     * @return 字符流
+     */
+    public static Reader getResourceAsReader(String resource) throws IOException {
+        return new InputStreamReader(getResourceAsStream(resource));
+    }
+
+    /**
+     * 读取资源
+     * @param resource 资源名字
+     * @return 字节流
+     */
+    public static InputStream getResourceAsStream(String resource) throws IOException {
+        InputStream inputStream = Resources.class.getClassLoader().getResourceAsStream(resource);
+        if(inputStream == null) {
+            throw new IOException("不能读取该资源: " + resource);
+        }
+        return inputStream;
+    }
+}
