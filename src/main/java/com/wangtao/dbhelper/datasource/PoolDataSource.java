@@ -5,7 +5,6 @@ import org.slf4j.LoggerFactory;
 
 import javax.sql.DataSource;
 import java.io.PrintWriter;
-import java.lang.reflect.Proxy;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
@@ -49,9 +48,11 @@ public class PoolDataSource implements DataSource {
     /**
      * 保存空闲连接
      */
-    private LinkedList<Connection> idleConnections = new LinkedList<>();
+    private LinkedList<PoolConnection> idleConnections = new LinkedList<>();
 
-    /** 活动连接数量 **/
+    /**
+     * 活动连接数量
+     **/
     private int activeSize;
 
     public PoolDataSource() {
@@ -67,23 +68,21 @@ public class PoolDataSource implements DataSource {
     }
 
     /**
-     * 返回一个代理对象
+     * 返回一个PoolConnection对象
      * @param username 用户名
      * @param password 密码
-     * @return connection代理对象
+     * @return connection
      */
-    private Connection wrapConnection(String username, String password) throws SQLException {
+    private PoolConnection wrapConnection(String username, String password) throws SQLException {
         Connection connection = dataSource.getConnection(username, password);
-        if(logger.isDebugEnabled()) {
+        if (logger.isDebugEnabled()) {
             logger.debug("connection{} 被创建", connection.hashCode());
         }
-        return (Connection) Proxy.newProxyInstance(PoolDataSource.class.getClassLoader(),
-                connection.getClass().getInterfaces(),
-                new PoolConnection(connection, this));
+        return new PoolConnection(connection, this);
     }
 
     public synchronized void initConnection() {
-        if(initSize > maxIdleSize) {
+        if (initSize > maxIdleSize) {
             throw new DataSourceException(String.format("初始连接数量(%d)大于最大空闲数量(%d)", initSize, maxIdleSize));
         }
         try {
@@ -93,51 +92,71 @@ public class PoolDataSource implements DataSource {
         } catch (SQLException e) {
             throw new DataSourceException("初始化连接失败. 原因:" + e);
         }
-        if(logger.isDebugEnabled()) {
+        if (logger.isDebugEnabled()) {
             logger.debug("已经初始化好{}个连接", initSize);
         }
     }
 
-    public synchronized Connection doGetConnection(String username, String password) throws SQLException {
+    public synchronized Connection popConnection(String username, String password) throws SQLException {
+        PoolConnection connection = null;
         // 初始连接数量
-        if(!flag) {
+        if (!flag) {
             initConnection();
             flag = true;
         }
         // 有空闲连接, 直接返回
-        if(idleConnections.size() > 0) {
+        if (idleConnections.size() > 0) {
             activeSize++;
-            return idleConnections.removeLast();
-        }
-        // 没有达到最大连接, 创建新连接
-        if(activeSize + idleConnections.size() < maxSize) {
-            Connection connection = wrapConnection(username, password);
+            connection = idleConnections.removeLast();
+        } else if (activeSize + idleConnections.size() < maxSize) {
+            // 没有达到最大连接, 创建新连接
+            connection = wrapConnection(username, password);
             activeSize++;
-            return connection;
         } else {
             long beforeTime = System.currentTimeMillis();
             while (System.currentTimeMillis() - beforeTime < maxWaitTime) {
-                if(idleConnections.size() > 0) {
+                if (idleConnections.size() > 0) {
                     activeSize++;
-                    return idleConnections.removeLast();
+                    connection = idleConnections.removeLast();
+                    break;
                 }
             }
-            throw new DataSourceException("获取连接失败, 已经达到最大等待时间, 没有空闲连接可用");
         }
+        if (connection != null) {
+            return connection.getProxyConnection();
+        }
+        throw new DataSourceException("获取连接失败, 已经达到最大等待时间, 没有空闲连接可用");
     }
 
     /**
      * 将连接放到连接池中
-     * @param connection connection代理对象
+     * @param connection PoolConnection
      */
-    public synchronized void pushConnection(Connection connection) {
-        if(idleConnections.size() < maxIdleSize) {
+    public synchronized void pushConnection(PoolConnection connection) throws SQLException {
+        if (idleConnections.size() < maxIdleSize) {
             idleConnections.addLast(connection);
             activeSize--;
-            if(logger.isDebugEnabled()) {
-                logger.debug("connection{}已被归还到连接池中", connection.hashCode());
+            if (logger.isDebugEnabled()) {
+                logger.debug("connection{}已被归还到连接池中", connection.getRealConnection().hashCode());
+            }
+        } else {
+            Connection realConection = connection.getRealConnection();
+            realConection.close();
+            if (logger.isDebugEnabled()) {
+                logger.debug("connection{}已经被释放", realConection.hashCode());
             }
         }
+    }
+
+    /**
+     * 关闭所有连接
+     */
+    public synchronized void forceClose() throws SQLException{
+        for(PoolConnection connection : idleConnections) {
+            connection.getRealConnection().close();
+        }
+        idleConnections.clear();
+        activeSize = 0;
     }
 
     @Override
@@ -147,7 +166,7 @@ public class PoolDataSource implements DataSource {
 
     @Override
     public Connection getConnection(String username, String password) throws SQLException {
-        return doGetConnection(username, password);
+        return popConnection(username, password);
     }
 
     public SimpleDataSource getDataSource() {
