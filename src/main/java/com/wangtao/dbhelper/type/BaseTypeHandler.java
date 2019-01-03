@@ -23,7 +23,7 @@ public abstract class BaseTypeHandler<T> implements TypeHandler<T> {
             }
         }
         try {
-            setNotNullParameter(ps, i, parameter);
+            setNotNullParameter(ps, i, parameter, jdbcType);
         } catch (SQLException e) {
             throw new TypeException(String.format("错误的设置参数, 参数位置: %d, jdbcType: %d",
                     i, jdbcType.getCode()));
@@ -40,6 +40,10 @@ public abstract class BaseTypeHandler<T> implements TypeHandler<T> {
     }
 
     public abstract void setNotNullParameter(PreparedStatement ps, int i, T parameter) throws SQLException;
+
+    public void setNotNullParameter(PreparedStatement ps, int i, T parameter, JdbcType jdbcType) throws SQLException {
+        setNotNullParameter(ps, i, parameter);
+    }
 
     public abstract T getNullableResult(ResultSet rs, String columnName) throws SQLException;
 }

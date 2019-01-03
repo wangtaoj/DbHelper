@@ -10,6 +10,8 @@ import java.util.Map;
 public enum JdbcType {
 
     INTEGET(Types.INTEGER),
+    BIGINT(Types.BIGINT),
+    BOOLEAN(Types.BOOLEAN),
     VARCHAR(Types.VARCHAR),
     DECIMAL(Types.DECIMAL),
     DATE(Types.DATE),

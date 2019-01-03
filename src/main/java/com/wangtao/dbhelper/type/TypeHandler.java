@@ -13,7 +13,7 @@ public interface TypeHandler<T> {
     /**
      * 从结果集中获取指定列名的值
      * @param rs 结果集
-     * @param columnName 列名
+     * @param columnName 列名, 不是别名
      * @return 对应的Java值
      */
     T getResult(ResultSet rs, String columnName);

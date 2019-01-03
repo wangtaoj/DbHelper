@@ -35,4 +35,13 @@ public class Resources {
         }
         return inputStream;
     }
+
+    /**
+     * 根据完全限定名获取Class
+     * @param className 完全限定名
+     * @return 对应的Class
+     */
+    public static Class<?> classForName(String className) throws ClassNotFoundException {
+        return Class.forName(className);
+    }
 }
