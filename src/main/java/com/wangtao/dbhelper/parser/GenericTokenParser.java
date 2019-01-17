@@ -43,7 +43,7 @@ public class GenericTokenParser {
             result.append(text, offset, openIndex);
             offset = openIndex + openToken.length();
             // 寻找结尾标志
-            int endIndex = text.indexOf(openToken, offset);
+            int endIndex = text.indexOf(closeToken, offset);
             // 没有结尾标志
             if(endIndex == -1) {
                 // 追加剩下所有内容
