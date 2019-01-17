@@ -55,10 +55,10 @@ public class Reflector {
         String[] readablePropertyNames = getMethods.keySet().toArray(new String[0]);
         String[] writeablePropertyName = setMethods.keySet().toArray(new String[0]);
         for (String propName : readablePropertyNames) {
-            caseInsensitiveMap.put(propName.toUpperCase(Locale.ENGLISH), propName);
+            caseInsensitiveMap.putIfAbsent(propName.toUpperCase(Locale.ENGLISH), propName);
         }
         for (String propName : writeablePropertyName) {
-            caseInsensitiveMap.put(propName.toUpperCase(Locale.ENGLISH), propName);
+            caseInsensitiveMap.putIfAbsent(propName.toUpperCase(Locale.ENGLISH), propName);
         }
     }
 

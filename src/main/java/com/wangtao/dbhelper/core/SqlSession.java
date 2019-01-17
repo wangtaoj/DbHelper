@@ -1,7 +1,5 @@
 package com.wangtao.dbhelper.core;
 
-import com.wangtao.dbhelper.exception.TooManyResultException;
-
 import java.io.Closeable;
 import java.util.List;
 
@@ -12,9 +10,7 @@ import java.util.List;
 public interface SqlSession extends Closeable {
 
 
-    default <T> T selectOne(String statement) {
-        return selectOne(statement, null);
-    }
+    <T> T selectOne(String statement);
 
     /**
      * 查询单条记录
@@ -23,24 +19,11 @@ public interface SqlSession extends Closeable {
      * @param <T> 返回值类型
      * @return 结果对象
      */
-    default <T> T selectOne(String statement, Object parameter) {
-        List<T> list = selectList(statement, parameter);
-        if (list.size() == 1) {
-            return list.get(0);
-        }
-        if(list.isEmpty()) {
-            return null;
-        }
-        throw new TooManyResultException(String.format("期待的是单个记录, 实际有%d条", list.size()));
-    }
+    <T> T selectOne(String statement, Object parameter);
 
-    default <T> List<T> selectList(String statement) {
-        return selectList(statement, null);
-    }
+    <T> List<T> selectList(String statement);
 
-    default <T> List<T> selectList(String statement, Object parameter) {
-        return selectList(statement, parameter, RowBounds.DEFAULT);
-    }
+    <T> List<T> selectList(String statement, Object parameter);
 
     /**
      * 查询多条记录
