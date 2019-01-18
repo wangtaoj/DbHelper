@@ -87,7 +87,7 @@ public class XpathParser {
     }
 
     public Double evalDouble(String expression, Object root) {
-        return Double.valueOf(evalString(expression, root));
+        return (Double) evaluate(expression, root, XPathConstants.NUMBER);
     }
 
     public XNode evalNode(String expression) {
@@ -96,7 +96,7 @@ public class XpathParser {
 
     public XNode evalNode(String expression, Object root) {
         Node node = (Node) evaluate(expression, root, XPathConstants.NODE);
-        return XNode.newXNode(node, this, variables);
+        return node == null ? null : XNode.newXNode(node, this, variables);
     }
 
     public List<XNode> evalNodes(String expression) {

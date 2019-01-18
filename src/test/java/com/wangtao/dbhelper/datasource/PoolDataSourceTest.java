@@ -17,7 +17,7 @@ public class PoolDataSourceTest {
     public void connection() throws Exception {
         Properties properties = new Properties();
         properties.load(Resources.getResourceAsReader("db.properties"));
-        DataSource dataSource = PoolDataSourceFactory.instance().getDataSource(properties);
+        DataSource dataSource = new PoolDataSourceFactory().getDataSource(properties);
         Connection connection = dataSource.getConnection();
         Assert.assertNotNull(connection);
         Assert.assertTrue(connection.getAutoCommit());

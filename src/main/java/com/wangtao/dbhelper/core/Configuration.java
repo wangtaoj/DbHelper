@@ -1,5 +1,6 @@
 package com.wangtao.dbhelper.core;
 
+import com.wangtao.dbhelper.mapping.Environment;
 import com.wangtao.dbhelper.type.JdbcType;
 import com.wangtao.dbhelper.type.TypeAliasRegistry;
 import com.wangtao.dbhelper.type.TypeHandlerRegistry;
@@ -28,6 +29,8 @@ public class Configuration {
     private TypeHandlerRegistry typeHandlerRegistry = new TypeHandlerRegistry();
 
     private TypeAliasRegistry typeAliasRegistry = new TypeAliasRegistry();
+
+    private Environment environment;
 
     public Properties getVariables() {
         return variables;
@@ -67,5 +70,13 @@ public class Configuration {
 
     public TypeAliasRegistry getTypeAliasRegistry() {
         return typeAliasRegistry;
+    }
+
+    public Environment getEnvironment() {
+        return environment;
+    }
+
+    public void setEnvironment(Environment environment) {
+        this.environment = environment;
     }
 }

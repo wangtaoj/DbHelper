@@ -17,7 +17,7 @@ public class SimpleDataSourceTest {
     public void getConnection() throws Exception {
         Properties properties = new Properties();
         properties.load(Resources.getResourceAsReader("db.properties"));
-        DataSource dataSource = SimpleDataSourceFactory.instance().getDataSource(properties);
+        DataSource dataSource = new SimpleDataSourceFactory().getDataSource(properties);
         Connection connection = dataSource.getConnection();
         Assert.assertNotNull(connection);
         Assert.assertTrue(connection.getAutoCommit());

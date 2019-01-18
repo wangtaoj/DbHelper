@@ -12,16 +12,4 @@ public class PoolDataSourceFactory implements DataSourceFactory {
     public DataSource getDataSource(Properties properties) {
         return new PoolDataSource(properties);
     }
-
-    public static DataSourceFactory instance() {
-        return Holder.getInstance();
-    }
-
-    private static class Holder {
-        private static DataSourceFactory dataSourceFactory = new PoolDataSourceFactory();
-
-        static DataSourceFactory getInstance() {
-            return dataSourceFactory;
-        }
-    }
 }

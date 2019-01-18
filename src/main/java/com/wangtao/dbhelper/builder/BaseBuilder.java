@@ -25,4 +25,8 @@ public abstract class BaseBuilder {
     public Configuration getConfiguration() {
         return configuration;
     }
+
+    public <T> Class<? extends T> resolveAlias(String alias) {
+        return configuration.getTypeAliasRegistry().resolveAlias(alias);
+    }
 }

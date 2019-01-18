@@ -5,7 +5,10 @@
 <configuration>
 
 	<properties>
+		<property name="driver" value="com.mysql.jdbc.Driver" />
+		<property name="url" value="jdbc:mysql://127.0.0.1:3306/test?characterEncoding=utf-8" />
 		<property name="username" value="root" />
+		<property name="password" value="123456" />
 	</properties>
 
 	<!--全局属性配置-->
@@ -14,18 +17,18 @@
 	</settings>
 
 	<typeAliases>
-		<typeAlias type="com.wangtao.entity.User" alias="User" />
-		<typeAlias type="com.wangtao.entity.Address" alias="Address" />
+		<typeAlias type="com.wangtao.dbhelper.bean.User" />
+		<typeAlias type="com.wangtao.dbhelper.bean.Address" alias="address" />
 	</typeAliases>
 
 	<environments default="mysql_development">
 		<environment id="mysql_development">
 			<transactionManager type="JDBC"/>
 			<dataSource type="POOLED">
-				<property name="driver" value="com.mysql.jdbc.Driver"/>
-				<property name="url" value="jdbc:mysql://127.0.0.1:3306/test?characterEncoding=utf-8"/>
-				<property name="username" value="root"/>
-				<property name="password" value="123456"/>
+				<property name="driver" value="${driver}"/>
+				<property name="url" value="${url}"/>
+				<property name="username" value="${username}"/>
+				<property name="password" value="${password}"/>
 			</dataSource>
 		</environment>
 	</environments>
