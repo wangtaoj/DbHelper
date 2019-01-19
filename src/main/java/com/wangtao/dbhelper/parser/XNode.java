@@ -129,19 +129,6 @@ public class XNode {
         return getBooleanAttribute(attrName, null);
     }
 
-    /**
-     * 获取节点名字
-     */
-    public String getName() {
-        return name;
-    }
-
-    /**
-     * 获取文本内容
-     */
-    public String getTextContent() {
-        return textContent;
-    }
 
     /**
      * 获取元素节点指定属性名的值, 并转化成Boolean值.
@@ -194,6 +181,20 @@ public class XNode {
 
     public Properties getAttributes() {
         return attributes;
+    }
+
+    /**
+     * 获取节点名字
+     */
+    public String getName() {
+        return name;
+    }
+
+    /**
+     * 获取文本内容
+     */
+    public String getTextContent() {
+        return textContent;
     }
 
     @Override

@@ -56,14 +56,14 @@ public class XmlConfigBuilder extends BaseBuilder {
     }
 
     private void parseConfiguration(XNode root) {
-        propertiesElements(root.evalNode("properties"));
+        propertiesElement(root.evalNode("properties"));
         Properties properties = settingsAsProperties(root.evalNode("settings"));
-        settingsElements(properties);
-        typeAliasesElements(root.evalNode("typeAliases"));
-        environmentsElements(root.evalNode("environments"));
+        settingsElement(properties);
+        typeAliasesElement(root.evalNode("typeAliases"));
+        environmentsElement(root.evalNode("environments"));
     }
 
-    private void propertiesElements(XNode properties) {
+    private void propertiesElement(XNode properties) {
         if (properties != null) {
             Properties variables = properties.getChildrenAsProperties();
             configuration.getVariables().putAll(variables);
@@ -86,12 +86,12 @@ public class XmlConfigBuilder extends BaseBuilder {
         return new Properties();
     }
 
-    private void settingsElements(Properties properties) {
+    private void settingsElement(Properties properties) {
         configuration.setMapUnderscoreToCamelCase(booleanOfValue(properties.getProperty("mapUnderscoreToCamelCase"), false));
         configuration.setCallSettersOnNulls(booleanOfValue(properties.getProperty("callSettersOnNulls"), false));
     }
 
-    private void typeAliasesElements(XNode typeAliases) {
+    private void typeAliasesElement(XNode typeAliases) {
         if (typeAliases != null) {
             List<XNode> children = typeAliases.getChildren();
             for (XNode typeAlias : children) {
@@ -115,7 +115,7 @@ public class XmlConfigBuilder extends BaseBuilder {
         }
     }
 
-    private void environmentsElements(XNode environments) {
+    private void environmentsElement(XNode environments) {
         if (environments != null) {
             try {
                 String defaultEnv = environments.getStringAttribute("default");
@@ -129,12 +129,12 @@ public class XmlConfigBuilder extends BaseBuilder {
                 DataSource dataSource = dataSourceFactory.getDataSource(properties);
                 Environment environment = Environment.newEnvironment(defaultEnv, transactionFactory, dataSource);
                 configuration.setEnvironment(environment);
-                return;
             } catch (Exception e) {
                 throw new BuilderException("解析environments元素出现错误. 原因: " + e);
             }
+        } else {
+            throw new BuilderException("必须指定一个环境, environments元素是必须的.");
         }
-        throw new BuilderException("必须指定一个环境, environments元素是必须的.");
     }
 
     private XNode specifyEnvironment(List<XNode> environments, String defaultEnv) {
