@@ -1,5 +1,6 @@
 package com.wangtao.dbhelper.parser;
 
+import org.w3c.dom.Element;
 import org.w3c.dom.NamedNodeMap;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
@@ -195,6 +196,38 @@ public class XNode {
      */
     public String getTextContent() {
         return textContent;
+    }
+
+    public XNode getParent() {
+        Node parent = node.getParentNode();
+        if ((parent instanceof Element)) {
+            return new XNode(parent, parser, variables);
+        } else {
+            return null;
+        }
+    }
+
+    public String getValueBasedIdentifier() {
+        StringBuilder builder = new StringBuilder();
+        XNode current = this;
+        while (current != null) {
+            if (current != this) {
+                builder.insert(0, "_");
+            }
+            String value = current.getStringAttribute("id",
+                    current.getStringAttribute("value",
+                            current.getStringAttribute("property", null)));
+            if (value != null) {
+                value = value.replace('.', '_');
+                builder.insert(0, "]");
+                builder.insert(0,
+                        value);
+                builder.insert(0, "[");
+            }
+            builder.insert(0, current.getName());
+            current = current.getParent();
+        }
+        return builder.toString();
     }
 
     @Override
