@@ -25,7 +25,7 @@ import java.util.Properties;
  * @author wangtao
  * Created at 2019/1/16 15:58
  */
-public class XmlConfigBuilder extends BaseBuilder {
+public class XMLConfigBuilder extends BaseBuilder {
 
     private XpathParser parser;
 
@@ -33,11 +33,11 @@ public class XmlConfigBuilder extends BaseBuilder {
 
     private ReflectorFactory reflectorFactory = new DefaultReflectorFactory();
 
-    public XmlConfigBuilder(Reader reader) {
+    public XMLConfigBuilder(Reader reader) {
         this(reader, null);
     }
 
-    public XmlConfigBuilder(Reader reader, Properties variables) {
+    public XMLConfigBuilder(Reader reader, Properties variables) {
         super(new Configuration());
         this.parsed = false;
         this.parser = new XpathParser.Builder().
