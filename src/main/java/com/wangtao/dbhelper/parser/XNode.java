@@ -32,9 +32,12 @@ public class XNode {
     private Properties variables;
 
     /**
-     * 节点的文本内容, 所有后代节点文本内容的拼接.
+     * 如果节点类型为文本节点、CDATA节点, body等于节点值.
+     * 如果是元素节点, body等于该元素的第一个(文本节点、CDATA)节点的节点值.
+     * 否则body等于null.
+     *
      */
-    private String textContent;
+    private String body;
 
     /**
      * 当前节点
@@ -49,10 +52,14 @@ public class XNode {
         this.parser = parser;
         this.variables = variables;
         this.attributes = parserAttributes(node);
-        this.textContent = parseBody(node);
+        this.body = parseBody(node);
     }
 
     public static XNode newXNode(Node node, XpathParser parser, Properties variables) {
+        return new XNode(node, parser, variables);
+    }
+
+    public XNode newXNode(Node node) {
         return new XNode(node, parser, variables);
     }
 
@@ -146,6 +153,14 @@ public class XNode {
         return Boolean.valueOf(value);
     }
 
+    public String getStringBody() {
+        return getStringBody(null);
+    }
+
+    public String getStringBody(String defaultValue) {
+        return body == null ? defaultValue : body;
+    }
+
     public Properties getChildrenAsProperties() {
         List<XNode> children = getChildren();
         Properties variables = new Properties();
@@ -175,10 +190,27 @@ public class XNode {
         return properties;
     }
 
-    private String parseBody(Node node) {
-        return node.getTextContent();
+    private String getBodyData(Node node) {
+        if(node.getNodeType() == Node.TEXT_NODE || node.getNodeType() == Node.CDATA_SECTION_NODE) {
+            return PropertyParser.parse(node.getNodeValue(), variables);
+        }
+        return null;
     }
 
+    private String parseBody(Node node) {
+        String data = getBodyData(node);
+        if(data == null) {
+            NodeList children = node.getChildNodes();
+            for(int i = 0; i < children.getLength(); i++) {
+                Node child = children.item(i);
+                data = getBodyData(child);
+                if(data != null) {
+                    break;
+                }
+            }
+        }
+        return data;
+    }
 
     public Properties getAttributes() {
         return attributes;
@@ -191,13 +223,6 @@ public class XNode {
         return name;
     }
 
-    /**
-     * 获取文本内容
-     */
-    public String getTextContent() {
-        return textContent;
-    }
-
     public XNode getParent() {
         Node parent = node.getParentNode();
         if ((parent instanceof Element)) {
@@ -205,6 +230,10 @@ public class XNode {
         } else {
             return null;
         }
+    }
+
+    public Node getNode() {
+        return node;
     }
 
     public String getValueBasedIdentifier() {
@@ -251,9 +280,9 @@ public class XNode {
             builder.append("</");
             builder.append(name);
             builder.append(">");
-        } else if (textContent != null) {
+        } else if (body != null) {
             builder.append(">");
-            builder.append(textContent);
+            builder.append(body);
             builder.append("</");
             builder.append(name);
             builder.append(">");

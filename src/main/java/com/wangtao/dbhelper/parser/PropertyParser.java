@@ -29,7 +29,8 @@ public class PropertyParser {
                     return variables.getProperty(expression);
                 }
             }
-            throw new ParserException("表达式" + "${" + expression + "}" + "没有对应的值");
+            // 没有变量值, 那么返回原来的值. 因为参数可能使用${}而不是#{}, 这样是动态表达式.
+            return "${" + expression + "}";
         }
     }
 }

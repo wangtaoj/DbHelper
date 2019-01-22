@@ -32,7 +32,7 @@ public class GenericTokenParser {
             return "";
         }
         int openIndex = text.indexOf(openToken);
-        if(openIndex == -1) {
+        if (openIndex == -1) {
             return text;
         }
         // 偏移量
@@ -45,7 +45,7 @@ public class GenericTokenParser {
             // 寻找结尾标志
             int endIndex = text.indexOf(closeToken, offset);
             // 没有结尾标志
-            if(endIndex == -1) {
+            if (endIndex == -1) {
                 // 追加剩下所有内容
                 result.append(text, openIndex, text.length());
                 offset = text.length();
@@ -53,12 +53,14 @@ public class GenericTokenParser {
                 // 计算值
                 String expression = text.substring(offset, endIndex);
                 String newValue = handler.handleToken(expression);
-                result.append(newValue);
+                if (newValue != null) {
+                    result.append(newValue);
+                }
                 offset = endIndex + closeToken.length();
             }
             openIndex = text.indexOf(openToken, offset);
         }
-        if(offset < text.length()) {
+        if (offset < text.length()) {
             result.append(text, offset, text.length());
         }
         return result.toString();
