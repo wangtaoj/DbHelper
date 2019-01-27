@@ -16,4 +16,8 @@ public class ReflectionException extends PersistenceException {
     public ReflectionException(String message) {
         super(message);
     }
+
+    public ReflectionException(String message, Throwable casue) {
+        super(message, casue);
+    }
 }
