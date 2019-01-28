@@ -5,7 +5,8 @@ import com.wangtao.dbhelper.reflection.Reflector;
 import java.lang.reflect.Field;
 
 /**
- * Created by wangtao at 2018/12/26 11:01
+ * @author wangtao
+ * Create at 2018/12/26 11:01
  */
 public class GetFieldInvoker implements Invoker {
 
