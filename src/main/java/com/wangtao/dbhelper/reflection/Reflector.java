@@ -4,6 +4,7 @@ import com.wangtao.dbhelper.reflection.invoker.GetFieldInvoker;
 import com.wangtao.dbhelper.reflection.invoker.Invoker;
 import com.wangtao.dbhelper.reflection.invoker.MethodInvoker;
 import com.wangtao.dbhelper.reflection.invoker.SetFieldInvoker;
+import com.wangtao.dbhelper.reflection.property.PropertyNamer;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
@@ -12,7 +13,8 @@ import java.lang.reflect.ReflectPermission;
 import java.util.*;
 
 /**
- * Created by wangtao at 2018/12/26 9:38
+ * @author wangtao
+ * Created at 2018/12/26 9:38
  */
 public class Reflector {
 
@@ -66,8 +68,12 @@ public class Reflector {
         Map<String, List<Method>> conflictMethods = new HashMap<>();
         Method[] allMethods = getAllMethods(clazz);
         for (Method method : allMethods) {
-            if (validateGetMethodName(method)) {
-                String propertyName = getPropertyNameFromMethod(method.getName());
+            if (method.getParameterCount() > 0) {
+                continue;
+            }
+            String name = method.getName();
+            if (PropertyNamer.isGetter(name)) {
+                String propertyName = PropertyNamer.methodToProperty(method.getName());
                 List<Method> methods = conflictMethods.computeIfAbsent(propertyName, key -> new ArrayList<>());
                 methods.add(method);
             }
@@ -127,8 +133,11 @@ public class Reflector {
         Map<String, List<Method>> conflictMethods = new HashMap<>();
         Method[] allMethods = getAllMethods(clazz);
         for (Method method : allMethods) {
-            if (validateSetMethodName(method)) {
-                String propertyName = getPropertyNameFromMethod(method.getName());
+            if (method.getParameterCount() != 1) {
+                continue;
+            }
+            if (PropertyNamer.isSetter(method.getName())) {
+                String propertyName = PropertyNamer.methodToProperty(method.getName());
                 List<Method> methods = conflictMethods.computeIfAbsent(propertyName, key -> new ArrayList<>());
                 methods.add(method);
             }
@@ -288,63 +297,6 @@ public class Reflector {
         return true;
     }
 
-    /**
-     * 校验方法是不是一个getter方法
-     * getXXXX, isXXXX
-     * @param method 方法
-     * @return 是getter方法 ? true : false
-     */
-    public static boolean validateGetMethodName(Method method) {
-        String methodName = method.getName();
-        boolean flag = methodName != null && methodName.startsWith("get") && methodName.length() > 3;
-        flag = flag || (methodName != null && methodName.startsWith("is") && methodName.length() > 2);
-        if (flag) {
-            return method.getParameterCount() == 0;
-        }
-        return false;
-    }
-
-    /**
-     * 校验方法是不是一个setter方法
-     * setXXXX
-     * @param method 方法
-     * @return 是setter方法 ? true : false
-     */
-    public static boolean validateSetMethodName(Method method) {
-        String methodName = method.getName();
-        boolean flag = methodName != null && methodName.startsWith("set") && methodName.length() > 3;
-        if (flag) {
-            return method.getParameterCount() == 1;
-        }
-        return false;
-    }
-
-    /**
-     * 从getter/setter方法获取属性名字
-     * 如果不是getter/setter方法, return null
-     * @param methodName 方法名字
-     * @return 属性名字
-     */
-    public static String getPropertyNameFromMethod(String methodName) {
-        if (methodName.startsWith("is")) {
-            return getPropertyNameFromMethod1(methodName, 2);
-        } else if (methodName.startsWith("get")) {
-            return getPropertyNameFromMethod1(methodName, 3);
-        } else if (methodName.startsWith("set")) {
-            return getPropertyNameFromMethod1(methodName, 3);
-        }
-        throw new ReflectionException("不是JavaBean标准的getter or setter方法");
-    }
-
-    private static String getPropertyNameFromMethod1(String methodName, int length) {
-        String temp = null;
-        int afterLen = length + 1;
-        if (methodName.length() > afterLen) {
-            temp = methodName.substring(afterLen);
-        }
-        String firstLetter = methodName.substring(length, afterLen);
-        return temp == null ? firstLetter.toLowerCase() : firstLetter.toLowerCase() + temp;
-    }
 
     public Class<?> getType() {
         return type;
