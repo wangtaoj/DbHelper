@@ -40,12 +40,12 @@ public class Reflector {
     /**
      * set方法参数类型集合
      */
-    private final Map<String, Class<?>> setParameterTypes = new HashMap<>();
+    private final Map<String, Class<?>> setterParamTypes = new HashMap<>();
 
     /**
      * get方法返回值类型集合
      */
-    private final Map<String, Class<?>> getReturnTypes = new HashMap<>();
+    private final Map<String, Class<?>> getterReturnTypes = new HashMap<>();
 
     /**
      * 可读属性数组
@@ -135,7 +135,7 @@ public class Reflector {
      * @return 参数类型
      */
     public Class<?> getSetterParamType(String propName) {
-        Class<?> paramterType = setParameterTypes.get(propName);
+        Class<?> paramterType = setterParamTypes.get(propName);
         if (paramterType == null) {
             throw new ReflectionException(String.format("在类%s中没有对应的Setter与属性名: %s匹配",
                     clazz.getName(), propName));
@@ -149,7 +149,7 @@ public class Reflector {
      * @return 返回值类型
      */
     public Class<?> getGetterReturnType(String propName) {
-        Class<?> returnType = getReturnTypes.get(propName);
+        Class<?> returnType = getterReturnTypes.get(propName);
         if (returnType == null) {
             throw new ReflectionException(String.format("在类%s中没有对应的Getter与属性名: %s匹配",
                     clazz.getName(), propName));
@@ -189,7 +189,7 @@ public class Reflector {
         if (!Objects.equals("serialVersionUID", propName)) {
             getMethods.put(propName, new MethodInvoker(method));
             Type returnType = TypeParameterResolver.resolveReturnType(method, clazz);
-            getReturnTypes.put(propName, typeToClass(returnType));
+            getterReturnTypes.put(propName, typeToClass(returnType));
         }
     }
 
@@ -260,6 +260,12 @@ public class Reflector {
                 }
                 Class<?> winnerParameterType = winner.getParameterTypes()[0];
                 Class<?> candidateParameterType = candidate.getParameterTypes()[0];
+                // setter方法参数类型与getter方法返回值类型相同, 最佳匹配.
+                Class<?> returnType = getterReturnTypes.get(propertyName);
+                if(returnType == candidateParameterType) {
+                    winner = candidate;
+                    break;
+                }
                 if (winnerParameterType.isAssignableFrom(candidateParameterType)) {
                     winner = candidate;
                 } else if (candidateParameterType.isAssignableFrom(winnerParameterType)) {
@@ -278,7 +284,7 @@ public class Reflector {
         if (!Objects.equals("serialVersionUID", propName)) {
             setMethods.put(propName, new MethodInvoker(setter));
             Type setParameterType = TypeParameterResolver.resolveParamType(setter, 0, clazz);
-            setParameterTypes.put(propName, typeToClass(setParameterType));
+            setterParamTypes.put(propName, typeToClass(setParameterType));
         }
     }
 
@@ -305,13 +311,13 @@ public class Reflector {
     private void addSetField(Field field) {
         setMethods.put(field.getName(), new SetFieldInvoker(field));
         Type fieldType = TypeParameterResolver.resolveFieldType(field, clazz);
-        setParameterTypes.put(field.getName(), typeToClass(fieldType));
+        setterParamTypes.put(field.getName(), typeToClass(fieldType));
     }
 
     private void addGetField(Field field) {
         getMethods.put(field.getName(), new GetFieldInvoker(field));
         Type fieldType = TypeParameterResolver.resolveFieldType(field, clazz);
-        getReturnTypes.put(field.getName(), typeToClass(fieldType));
+        getterReturnTypes.put(field.getName(), typeToClass(fieldType));
     }
 
     /**
