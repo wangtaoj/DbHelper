@@ -61,8 +61,10 @@ public class Reflector {
 
     public Reflector(Class<?> clazz) {
         this.clazz = clazz;
-        addGetMethods(clazz);
-        addSetMethods(clazz);
+        this.defaultConstructor = findDefaultConstructor(clazz);
+        Method[] allMethods = getAllMethods(clazz);
+        addGetMethods(allMethods);
+        addSetMethods(allMethods);
         addFields(clazz);
         this.readablePropertyNames = getMethods.keySet().toArray(new String[0]);
         this.writeablePropertyName = setMethods.keySet().toArray(new String[0]);
@@ -157,18 +159,18 @@ public class Reflector {
         return returnType;
     }
 
-    private void addDefaultConstructor(Class<?> type) {
-        Constructor<?>[] constructors = type.getDeclaredConstructors();
+    private Constructor<?> findDefaultConstructor(Class<?> clazz) {
+        Constructor<?>[] constructors = clazz.getDeclaredConstructors();
         for (Constructor<?> constructor : constructors) {
             if (constructor.getParameterCount() == 0) {
-                this.defaultConstructor = constructor;
+                return constructor;
             }
         }
+        return null;
     }
 
-    private void addGetMethods(Class<?> clazz) {
+    private void addGetMethods(Method[] allMethods) {
         Map<String, List<Method>> conflictMethods = new HashMap<>();
-        Method[] allMethods = getAllMethods(clazz);
         for (Method method : allMethods) {
             if (method.getParameterCount() > 0) {
                 continue;
@@ -232,9 +234,8 @@ public class Reflector {
         }
     }
 
-    private void addSetMethods(Class<?> clazz) {
+    private void addSetMethods(Method[] allMethods) {
         Map<String, List<Method>> conflictMethods = new HashMap<>();
-        Method[] allMethods = getAllMethods(clazz);
         for (Method method : allMethods) {
             if (method.getParameterCount() != 1) {
                 continue;
@@ -252,32 +253,42 @@ public class Reflector {
         for (Map.Entry<String, List<Method>> entry : conflictMethods.entrySet()) {
             List<Method> setters = entry.getValue();
             String propertyName = entry.getKey();
+            // setter方法参数类型与getter方法返回值类型相同, 最佳匹配.
+            Class<?> returnType = getterReturnTypes.get(propertyName);
             Method winner = null;
-            for (Method candidate : setters) {
-                if (winner == null) {
-                    winner = candidate;
-                    continue;
+            if (returnType != null) {
+                for(Method candidate: setters) {
+                    Class<?> candidateParameterType = candidate.getParameterTypes()[0];
+                    if(returnType == candidateParameterType) {
+                        winner = candidate;
+                        break;
+                    }
                 }
-                Class<?> winnerParameterType = winner.getParameterTypes()[0];
-                Class<?> candidateParameterType = candidate.getParameterTypes()[0];
-                // setter方法参数类型与getter方法返回值类型相同, 最佳匹配.
-                Class<?> returnType = getterReturnTypes.get(propertyName);
-                if(returnType == candidateParameterType) {
-                    winner = candidate;
-                    break;
-                }
-                if (winnerParameterType.isAssignableFrom(candidateParameterType)) {
-                    winner = candidate;
-                } else if (candidateParameterType.isAssignableFrom(winnerParameterType)) {
-                    // just do nothing
-                } else {
-                    throw new ReflectionException("不合法的setter方法定义, 破坏了Java Bean规范," +
-                            "该类中拥有两个setter方法. 具体类:" + clazz.getName() +
-                            "具体方法: " + candidate.getName() + ", " + winner.getName());
+            }
+            // 借助getter返回值依然没有找到, 遍历寻找最适合的setter.
+            if(winner == null) {
+                winner = setters.get(0);
+                for (Method candidate : setters) {
+                    winner = findBetterSetter(winner, candidate);
                 }
             }
             addSetMethod(propertyName, winner);
         }
+    }
+
+    private Method findBetterSetter(Method winner, Method candidate) {
+        Class<?> candidateParameterType = candidate.getParameterTypes()[0];
+        Class<?> winnerParameterType = winner.getParameterTypes()[0];
+        if (winnerParameterType.isAssignableFrom(candidateParameterType)) {
+            winner = candidate;
+        } else if (candidateParameterType.isAssignableFrom(winnerParameterType)) {
+            // just do nothing
+        } else {
+            throw new ReflectionException("不合法的setter方法定义, 破坏了Java Bean规范," +
+                    "该类中拥有两个setter方法. 具体类:" + clazz.getName() +
+                    "具体方法: " + candidate.getName() + ", " + winner.getName());
+        }
+        return winner;
     }
 
     private void addSetMethod(String propName, Method setter) {
