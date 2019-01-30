@@ -6,13 +6,11 @@ import com.wangtao.dbhelper.reflection.invoker.MethodInvoker;
 import com.wangtao.dbhelper.reflection.invoker.SetFieldInvoker;
 import com.wangtao.dbhelper.reflection.property.PropertyNamer;
 
-import java.lang.reflect.Field;
-import java.lang.reflect.Method;
-import java.lang.reflect.Modifier;
-import java.lang.reflect.ReflectPermission;
+import java.lang.reflect.*;
 import java.util.*;
 
 /**
+ * 此类描述的是一个类的基本信息, 包括属性、setter方法、getter方法、默认构造函数.
  * @author wangtao
  * Created at 2018/12/26 9:38
  */
@@ -21,7 +19,7 @@ public class Reflector {
     /**
      * 类型
      */
-    private final Class<?> type;
+    private final Class<?> clazz;
 
     /**
      * setter方法集合, key: 属性名, value: Invoker对象, 调用method.invoke | field.set() 设置属性值
@@ -45,22 +43,126 @@ public class Reflector {
     private final Map<String, Class<?>> setParameterTypes = new HashMap<>();
 
     /**
-     * get方法参数类型集合
+     * get方法返回值类型集合
      */
     private final Map<String, Class<?>> getReturnTypes = new HashMap<>();
 
+    /**
+     * 可读属性数组
+     */
+    private String[] readablePropertyNames;
+
+    /**
+     * 可写属性数组
+     */
+    private String[] writeablePropertyName;
+
+    private Constructor<?> defaultConstructor;
+
     public Reflector(Class<?> clazz) {
-        this.type = clazz;
+        this.clazz = clazz;
         addGetMethods(clazz);
         addSetMethods(clazz);
         addFields(clazz);
-        String[] readablePropertyNames = getMethods.keySet().toArray(new String[0]);
-        String[] writeablePropertyName = setMethods.keySet().toArray(new String[0]);
+        this.readablePropertyNames = getMethods.keySet().toArray(new String[0]);
+        this.writeablePropertyName = setMethods.keySet().toArray(new String[0]);
         for (String propName : readablePropertyNames) {
             caseInsensitiveMap.putIfAbsent(propName.toUpperCase(Locale.ENGLISH), propName);
         }
         for (String propName : writeablePropertyName) {
             caseInsensitiveMap.putIfAbsent(propName.toUpperCase(Locale.ENGLISH), propName);
+        }
+    }
+
+    /**
+     * 查找真正的属性名
+     * @param propName 不区分大小写的属性名称
+     * @return 属性名
+     */
+    public String findPropName(String propName) {
+        return caseInsensitiveMap.get(propName.toUpperCase(Locale.ENGLISH));
+    }
+
+    /**
+     * 是否有setter方法
+     * @param propName 属性名
+     * @return 存在setter方法 ? true : false
+     */
+    public boolean hasSetter(String propName) {
+        return setMethods.containsKey(propName);
+    }
+
+    /**
+     * 是否有getter方法
+     * @param propName 属性名
+     * @return 存在getter方法 ? true : false
+     */
+    public boolean hasGetter(String propName) {
+        return getMethods.containsKey(propName);
+    }
+
+    /**
+     * 获取Invoker, 用来设置属性值
+     * @param propName 属性名
+     * @return 对应的Invoker
+     */
+    public Invoker getSetInvoker(String propName) {
+        Invoker invoker = setMethods.get(propName);
+        if (invoker == null) {
+            throw new ReflectionException(String.format("在类%s中没有对应的Setter与属性名: %s匹配",
+                    clazz.getName(), propName));
+        }
+        return invoker;
+    }
+
+    /**
+     * 获取Invoker, 用来获取属性值
+     * @param propName 属性名
+     * @return 对应的Invoker
+     */
+    public Invoker getGetInvoker(String propName) {
+        Invoker invoker = getMethods.get(propName);
+        if (invoker == null) {
+            throw new ReflectionException(String.format("在类%s中没有对应的Getter与属性名: %s匹配",
+                    clazz.getName(), propName));
+        }
+        return invoker;
+    }
+
+    /**
+     * 获取setter参数类型
+     * @param propName 属性名
+     * @return 参数类型
+     */
+    public Class<?> getSetterParamType(String propName) {
+        Class<?> paramterType = setParameterTypes.get(propName);
+        if (paramterType == null) {
+            throw new ReflectionException(String.format("在类%s中没有对应的Setter与属性名: %s匹配",
+                    clazz.getName(), propName));
+        }
+        return paramterType;
+    }
+
+    /**
+     * 获取getter返回类型
+     * @param propName 属性名
+     * @return 返回值类型
+     */
+    public Class<?> getGetterReturnType(String propName) {
+        Class<?> returnType = getReturnTypes.get(propName);
+        if (returnType == null) {
+            throw new ReflectionException(String.format("在类%s中没有对应的Getter与属性名: %s匹配",
+                    clazz.getName(), propName));
+        }
+        return returnType;
+    }
+
+    private void addDefaultConstructor(Class<?> type) {
+        Constructor<?>[] constructors = type.getDeclaredConstructors();
+        for (Constructor<?> constructor : constructors) {
+            if (constructor.getParameterCount() == 0) {
+                this.defaultConstructor = constructor;
+            }
         }
     }
 
@@ -86,7 +188,8 @@ public class Reflector {
     private void addGetMethod(String propName, Method method) {
         if (!Objects.equals("serialVersionUID", propName)) {
             getMethods.put(propName, new MethodInvoker(method));
-            getReturnTypes.put(propName, method.getReturnType());
+            Type returnType = TypeParameterResolver.resolveReturnType(method, clazz);
+            getReturnTypes.put(propName, typeToClass(returnType));
         }
     }
 
@@ -110,7 +213,7 @@ public class Reflector {
                         }
                     } else {
                         throw new ReflectionException("不合法的覆盖getter方法, 破坏了Java Bean规范," +
-                                "该类中拥有两个getter方法, 返回值模棱两可, 不确定性. 具体类:" + type.getName() +
+                                "该类中拥有两个getter方法, 返回值模棱两可, 不确定性. 具体类:" + clazz.getName() +
                                 "具体方法: " + candidate.getName() + ", " + winner.getName());
                     }
                     //candidateReturnType == boolean.class || candidateReturnType == Boolean.class
@@ -121,7 +224,7 @@ public class Reflector {
                     // yes, just do nothing
                 } else {
                     throw new ReflectionException("不合法的覆盖getter方法, 破坏了Java Bean规范," +
-                            "该类中拥有两个getter方法, 返回值模棱两可, 不确定性. 具体类:" + type.getName() +
+                            "该类中拥有两个getter方法, 返回值模棱两可, 不确定性. 具体类:" + clazz.getName() +
                             "具体方法: " + candidate.getName() + ", " + winner.getName());
                 }
             }
@@ -163,7 +266,7 @@ public class Reflector {
                     // just do nothing
                 } else {
                     throw new ReflectionException("不合法的setter方法定义, 破坏了Java Bean规范," +
-                            "该类中拥有两个setter方法. 具体类:" + type.getName() +
+                            "该类中拥有两个setter方法. 具体类:" + clazz.getName() +
                             "具体方法: " + candidate.getName() + ", " + winner.getName());
                 }
             }
@@ -174,7 +277,8 @@ public class Reflector {
     private void addSetMethod(String propName, Method setter) {
         if (!Objects.equals("serialVersionUID", propName)) {
             setMethods.put(propName, new MethodInvoker(setter));
-            setParameterTypes.put(propName, setter.getParameterTypes()[0]);
+            Type setParameterType = TypeParameterResolver.resolveParamType(setter, 0, clazz);
+            setParameterTypes.put(propName, typeToClass(setParameterType));
         }
     }
 
@@ -200,12 +304,14 @@ public class Reflector {
 
     private void addSetField(Field field) {
         setMethods.put(field.getName(), new SetFieldInvoker(field));
-        setParameterTypes.put(field.getName(), field.getType());
+        Type fieldType = TypeParameterResolver.resolveFieldType(field, clazz);
+        setParameterTypes.put(field.getName(), typeToClass(fieldType));
     }
 
     private void addGetField(Field field) {
         getMethods.put(field.getName(), new GetFieldInvoker(field));
-        getReturnTypes.put(field.getName(), field.getType());
+        Type fieldType = TypeParameterResolver.resolveFieldType(field, clazz);
+        getReturnTypes.put(field.getName(), typeToClass(fieldType));
     }
 
     /**
@@ -231,14 +337,16 @@ public class Reflector {
     /**
      * 桥接方法: 通常发生于继承与泛型同在的场景
      * 例如:
+     * <pre>
      * class abstract A<T> {
-     * public abstract T getName(T t);
+     *   public abstract T getName(T t);
      * }
      * class SubB extends A<String> {
-     * public String getName(String t) {
-     * return "11";
+     *   public String getName(String t) {
+     *     return "11";
+     *   }
      * }
-     * }
+     * </pre>
      * 因为泛型擦除的原因, 泛型擦除后A中方法定义实际上是public abstract Object getName(Object t)
      * 为了保持字节码继承语义, 编译器自动给SubB也添加了一个public Object getName(Object t)方法,
      * 称之为桥接方法, 因此实际上SubB中存在两个getName方法, 一个是编译器生成的桥接方法, 一个是声明的方法.
@@ -297,91 +405,41 @@ public class Reflector {
         return true;
     }
 
-
-    public Class<?> getType() {
-        return type;
-    }
-
-    /**
-     * 查找真正的属性名
-     * @param propName 不区分大小写的属性名称
-     * @return 属性名
-     */
-    public String findPropName(String propName) {
-        return caseInsensitiveMap.get(propName.toUpperCase(Locale.ENGLISH));
-    }
-
-    /**
-     * 是否有setter方法
-     * @param propName 属性名
-     * @return 存在setter方法 ? true : false
-     */
-    public boolean hasSetter(String propName) {
-        return setMethods.containsKey(propName);
-    }
-
-    /**
-     * 是否有getter方法
-     * @param propName 属性名
-     * @return 存在getter方法 ? true : false
-     */
-    public boolean hasGetter(String propName) {
-        return getMethods.containsKey(propName);
-    }
-
-    /**
-     * 获取Invoker, 用来设置属性值
-     * @param propName 属性名
-     * @return 对应的Invoker
-     */
-    public Invoker getSetInvoker(String propName) {
-        Invoker invoker = setMethods.get(propName);
-        if (invoker == null) {
-            throw new ReflectionException(String.format("在类%s中没有对应的Setter与属性名: %s匹配",
-                    type.getName(), propName));
+    private Class<?> typeToClass(Type type) {
+        Class<?> result = null;
+        // 类型变量已经被解释成真正的类型, 因此只有3个分支.
+        if (type instanceof Class<?>) {
+            result = (Class<?>) type;
+        } else if (type instanceof ParameterizedType) {
+            result = (Class<?>) ((ParameterizedType) type).getRawType();
+        } else if (type instanceof GenericArrayType) {
+            Type componentType = ((GenericArrayType) type).getGenericComponentType();
+            if (componentType instanceof ParameterizedType) {
+                Class<?> temp = typeToClass(componentType);
+                // 返回数组类型
+                result = Array.newInstance(temp, 0).getClass();
+            }
+        } else {
+            throw new IllegalArgumentException("参数只能是Class, ParameterizedType, GenericArrayType类型, 实际上是"
+                    + type.getClass());
         }
-        return invoker;
+        return result;
     }
 
-    /**
-     * 获取Invoker, 用来获取属性值
-     * @param propName 属性名
-     * @return 对应的Invoker
-     */
-    public Invoker getGetInvoker(String propName) {
-        Invoker invoker = getMethods.get(propName);
-        if (invoker == null) {
-            throw new ReflectionException(String.format("在类%s中没有对应的Getter与属性名: %s匹配",
-                    type.getName(), propName));
-        }
-        return invoker;
+
+    public Class<?> getClazz() {
+        return clazz;
     }
 
-    /**
-     * 获取setter参数类型
-     * @param propName 属性名
-     * @return 参数类型
-     */
-    public Class<?> getSetParameterType(String propName) {
-        Class<?> paramterType = setParameterTypes.get(propName);
-        if (paramterType == null) {
-            throw new ReflectionException(String.format("在类%s中没有对应的Setter与属性名: %s匹配",
-                    type.getName(), propName));
-        }
-        return paramterType;
+    public String[] getReadablePropertyNames() {
+        return readablePropertyNames;
     }
 
-    /**
-     * 获取getter返回类型
-     * @param propName 属性名
-     * @return 返回值类型
-     */
-    public Class<?> getGetReturnType(String propName) {
-        Class<?> returnType = getReturnTypes.get(propName);
-        if (returnType == null) {
-            throw new ReflectionException(String.format("在类%s中没有对应的Getter与属性名: %s匹配",
-                    type.getName(), propName));
-        }
-        return returnType;
+    public String[] getWriteablePropertyName() {
+        return writeablePropertyName;
+    }
+
+    public Constructor<?> getDefaultConstructor() {
+        return defaultConstructor;
     }
 }
