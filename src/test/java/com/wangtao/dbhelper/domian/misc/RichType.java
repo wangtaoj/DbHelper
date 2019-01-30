@@ -39,7 +39,7 @@ public class RichType {
         this.richProperty = richProperty;
     }
 
-    public List getRichList() {
+    public List<String> getRichList() {
         return richList;
     }
 

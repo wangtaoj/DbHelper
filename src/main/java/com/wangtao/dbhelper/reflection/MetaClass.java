@@ -1,9 +1,20 @@
 package com.wangtao.dbhelper.reflection;
 
+import com.wangtao.dbhelper.reflection.invoker.GetFieldInvoker;
 import com.wangtao.dbhelper.reflection.invoker.Invoker;
+import com.wangtao.dbhelper.reflection.invoker.MethodInvoker;
 import com.wangtao.dbhelper.reflection.property.PropertyTokenizer;
 
+import java.lang.reflect.Field;
+import java.lang.reflect.Method;
+import java.lang.reflect.ParameterizedType;
+import java.lang.reflect.Type;
+import java.util.Collection;
+import java.util.Map;
+
 /**
+ * 所有的结果都是根据编译时的类型分析得到的.
+ * 根据运行时类型请使用更强大的MetaObject类.
  * @author wangtao
  * Created at 2019/1/16 16:46
  */
@@ -35,11 +46,6 @@ public class MetaClass {
         return forClass(type, new DefaultReflectorFactory());
     }
 
-    public MetaClass metaClassForProperty(String propName) {
-        Class<?> propertyType = reflector.getGetterReturnType(propName);
-        return MetaClass.forClass(propertyType, reflectorFactory);
-    }
-
     /**
      * 获取可读属性数组
      * @return 包含可读属性的数组
@@ -58,6 +64,7 @@ public class MetaClass {
 
     /**
      * 查找类中真正的属性名, 可以使用点操作符嵌套查找.
+     * 暂不支持[]语法
      * @param propName 属性名, 忽略大小写
      * @return 真正的属性名, 区分大小写
      */
@@ -81,7 +88,8 @@ public class MetaClass {
 
     /**
      * 判断属性表达式是否有对应的setter, 可以使用点操作符嵌套查找.
-     * 对于数组"arr[0]"表达式, 只要对象里有arr属性, 也返回true.
+     * 支持数组, Collection, Map的数组语法[]
+     * 如果以[]语法结尾, 如user.arr[0], 或者arr[0], 那么将查找的是arr.
      * @param propName 属性名
      * @return 存在setter ? true : false
      */
@@ -89,21 +97,21 @@ public class MetaClass {
         PropertyTokenizer tokenizer = new PropertyTokenizer(propName);
         if (tokenizer.hasNext()) {
             if (reflector.hasSetter(tokenizer.getName())) {
-                MetaClass metaClass = metaClassForProperty(tokenizer.getName());
+                MetaClass metaClass = metaClassForProperty(tokenizer.getIndexName());
                 return metaClass.hasSetter(tokenizer.getChildren());
             } else {
                 return false;
             }
         } else {
-            // 传tokenizer.getName()而不是propName
-            // arr[1] tokenizer.getName() = arr, propName = arr[1]
+            // 如果以数组语法结尾, 会去掉数组语法. arr[0] -> arr
             return reflector.hasSetter(tokenizer.getName());
         }
     }
 
     /**
      * 判断属性表达式是否有对应的getter, 可使用点操作符嵌套查找
-     * 对于数组"arr[0]"表达式, 只要对象里有arr属性, 也返回true.
+     * 支持数组, Collection, Map的数组语法[].
+     * 如果以[]语法结尾, 如user.arr[0], 或者arr[0], 那么将查找的是arr.
      * @param propName 属性名
      * @return 存在getter ? true : false
      */
@@ -111,7 +119,7 @@ public class MetaClass {
         PropertyTokenizer tokenizer = new PropertyTokenizer(propName);
         if (tokenizer.hasNext()) {
             if (reflector.hasGetter(tokenizer.getName())) {
-                MetaClass metaClass = metaClassForProperty(tokenizer.getName());
+                MetaClass metaClass = metaClassForProperty(tokenizer.getIndexName());
                 return metaClass.hasGetter(tokenizer.getChildren());
             } else {
                 return false;
@@ -130,33 +138,43 @@ public class MetaClass {
     }
 
     /**
-     * 获取属性的setter方法参数类型, 支持点操作符.
-     * 如果使用了数组语法arr[1], 返回的是arr属性对应的setter方法参数类型.
+     * 获取属性的setter方法参数类型, 可使用点操作符嵌套查找.
+     * 支持数组, Collection, Map的数组语法[].
      * @param propName 属性名
      * @return setter方法参数类型
      */
     public Class<?> getSetterType(String propName) {
         PropertyTokenizer tokenizer = new PropertyTokenizer(propName);
         if (tokenizer.hasNext()) {
-            MetaClass metaClass = metaClassForProperty(tokenizer.getName());
+            MetaClass metaClass = metaClassForProperty(tokenizer.getIndexName());
             return metaClass.getSetterType(tokenizer.getChildren());
         }
-        return reflector.getSetterParamType(tokenizer.getName());
+        // 存在数组语法, 解析元素类型
+        if (tokenizer.getIndex() != null) {
+            return resolveElementTypeOfArrayOrCollection(tokenizer);
+        } else {
+            return reflector.getSetterParamType(propName);
+        }
     }
 
     /**
      * 获取属性的getter方法返回值类型, 支持点操作符.
-     * 如果使用了数组语法arr[1], 返回的是arr属性对应的getter方法返回值类型.
+     * 支持数组, Collection, Map的数组语法[].
      * @param propName 属性名
      * @return getter方法返回值类型
      */
     public Class<?> getGetterType(String propName) {
         PropertyTokenizer tokenizer = new PropertyTokenizer(propName);
         if (tokenizer.hasNext()) {
-            MetaClass metaClass = metaClassForProperty(tokenizer.getName());
+            MetaClass metaClass = metaClassForProperty(tokenizer.getIndexName());
             return metaClass.getSetterType(tokenizer.getChildren());
         }
-        return reflector.getGetterReturnType(tokenizer.getName());
+        // 存在数组语法, 解析元素类型
+        if (tokenizer.getIndex() != null) {
+            return resolveElementTypeOfArrayOrCollection(tokenizer);
+        } else {
+            return reflector.getGetterReturnType(propName);
+        }
     }
 
     /**
@@ -199,6 +217,94 @@ public class MetaClass {
             } else {
                 return new StringBuilder();
             }
+        }
+    }
+
+    /**
+     * 解析带有数组语法的元素类型.
+     * 1. 如果集合(Collection)使用的是原生类型, 返回Object.class.
+     * 2. 如果Map使用的是原生类型, 返回Object.class.
+     * <pre>{@code
+     * class User {
+     *     public String name;
+     *     public List<Address> addressList;
+     *     public Address[] addresses;
+     *     public List items;
+     * }
+     * class Address {
+     *     public String name;
+     * }
+     * MetaClass metaClass = MetaClass.forClass(User.class);
+     * metaClass.resolveElementTypeOfArrayOrCollection(new PropertyTokenizer("addresses[0]"));
+     * the result is Address.class
+     *
+     * metaClass.resolveElementTypeOfArrayOrCollection(new PropertyTokenizer("addressList[0]"));
+     * the result is Address.class
+     *
+     * metaClass.resolveElementTypeOfArrayOrCollection(new PropertyTokenizer("item[0]"));
+     * the result is Object.class
+     * }</pre>
+     * @param tokenizer 属性分析器
+     * @return 返回数组元素或者集合元素的类型.
+     */
+    private Class<?> resolveElementTypeOfArrayOrCollection(PropertyTokenizer tokenizer) {
+        String propName = tokenizer.getName();
+        Type arrayType = getGenericGetterType(propName);
+        // 是原始类型
+        if (arrayType instanceof Class<?>) {
+            Class<?> arrayClass = (Class<?>) arrayType;
+            if (arrayClass.isArray()) {
+                // String[], 则返回String.
+                return arrayClass.getComponentType();
+            } else if (Collection.class.isAssignableFrom(arrayClass)) {
+                // 集合使用的是原始类型, 没有带泛型, 集合元素类型返回Object
+                return Object.class;
+            } else if (Map.class.isAssignableFrom(arrayClass)) {
+                // Map使用的是原始类型, 没有带泛型, Value类型返回Object.
+                return Object.class;
+            }
+        } else if (arrayType instanceof ParameterizedType) {
+            ParameterizedType parameterizedType = (ParameterizedType) arrayType;
+            Class<?> rawType = (Class<?>) parameterizedType.getRawType();
+            if (Collection.class.isAssignableFrom(rawType)) {
+                return (Class<?>) parameterizedType.getActualTypeArguments()[0];
+            } else if (Map.class.isAssignableFrom(rawType)) {
+                return (Class<?>) parameterizedType.getActualTypeArguments()[1];
+            }
+        }
+        throw new ReflectionException("我们期待此属性(" + propName + ")的类型是一个数组, Collection, Map. 实际上是"
+                + arrayType.getClass());
+    }
+
+    private MetaClass metaClassForProperty(String propName) {
+        PropertyTokenizer tokenizer = new PropertyTokenizer(propName);
+        Class<?> propertyType;
+        if (tokenizer.getIndex() != null) {
+            // 存在数组语法, 需要解析属性类型并且带泛型信息.
+            propertyType = resolveElementTypeOfArrayOrCollection(tokenizer);
+        } else {
+            propertyType = reflector.getGetterReturnType(tokenizer.getName());
+        }
+        return MetaClass.forClass(propertyType, reflectorFactory);
+    }
+
+    private Type getGenericGetterType(String propName) {
+        // 可通过Invoker实现类来获取此属性对应的getter method或者field.
+        Invoker invoker = reflector.getGetInvoker(propName);
+        try {
+            if (invoker instanceof MethodInvoker) {
+                Field _method = ((MethodInvoker) invoker).getClass().getDeclaredField("method");
+                _method.setAccessible(true);
+                Method getter = (Method) _method.get(invoker);
+                return TypeParameterResolver.resolveReturnType(getter, type);
+            } else {
+                Field _field = ((GetFieldInvoker) invoker).getClass().getDeclaredField("field");
+                _field.setAccessible(true);
+                Field realField = (Field) _field.get(invoker);
+                return TypeParameterResolver.resolveFieldType(realField, type);
+            }
+        } catch (NoSuchFieldException | IllegalAccessException e) {
+            throw new ReflectionException("", e);
         }
     }
 }
