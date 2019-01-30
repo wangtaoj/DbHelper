@@ -314,7 +314,7 @@ public class Reflector {
             }
         }
         Class<?> superClass = clazz.getSuperclass();
-        if (superClass != Object.class) {
+        if (superClass != null && superClass != Object.class) {
             addFields(superClass);
         }
     }
