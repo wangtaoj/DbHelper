@@ -3,6 +3,17 @@ package com.wangtao.dbhelper.reflection;
 import java.lang.reflect.*;
 
 /**
+ * 该类作用旨在用来替代以下方法.
+ * 1) field.getType()  2) method.getReturnType()  3)method.getParameterTypes()
+ * 此类会尽可能的借助父类信息将类中声明的类型变量替换成实际类型.
+ * 举例:
+ * <pre>{@code
+ *  class Farther<T> {
+ *      public T t;
+ *  }
+ *  class Son extends Farther<String> {}
+ * }</pre>
+ * 上面的类型变量T将会被替换成String.
  * @author wangtao
  * Created at 2019/1/29 10:42
  */
