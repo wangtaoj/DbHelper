@@ -18,6 +18,14 @@ public interface ObjectFactory {
     <T> T create(Class<T> clazz);
 
     /**
+     * 创建一个指定大小的数组或者List.
+     * @param clazz 数组的component type 或者 List.class
+     * @param length 数组长度或者List的大小.
+     * @return 返回一个数组或者一个List.
+     */
+    Object create(Class<?> clazz, int length);
+
+    /**
      * 根据指定的构造方法实例化对象.
      * @param clazz Class对象
      * @param constructorClasses 构造方法的参数类型, 用于获取指定的构造方法

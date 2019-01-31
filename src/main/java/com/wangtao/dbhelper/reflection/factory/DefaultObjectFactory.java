@@ -2,6 +2,7 @@ package com.wangtao.dbhelper.reflection.factory;
 
 import com.wangtao.dbhelper.reflection.ReflectionException;
 
+import java.lang.reflect.Array;
 import java.lang.reflect.Constructor;
 import java.util.*;
 
@@ -14,6 +15,15 @@ public class DefaultObjectFactory implements ObjectFactory {
     @Override
     public <T> T create(Class<T> clazz) {
         return create(clazz, null, null);
+    }
+
+    @Override
+    public Object create(Class<?> clazz, int length) {
+        if (List.class.isAssignableFrom(clazz)) {
+
+            return create(clazz, Collections.singletonList(int.class), Collections.singletonList(length));
+        }
+        return Array.newInstance(clazz, length);
     }
 
     @Override
