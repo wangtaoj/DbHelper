@@ -14,7 +14,7 @@ import java.util.Map;
 
 /**
  * 所有的结果都是根据编译时的类型分析得到的.
- * 根据运行时类型请使用更强大的MetaObject类.
+ * 此类并没有setValue, getValue方法, 获取值的操作应该使用MetaObject.
  * @author wangtao
  * Created at 2019/1/16 16:46
  */
