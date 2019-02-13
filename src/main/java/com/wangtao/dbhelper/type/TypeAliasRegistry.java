@@ -56,7 +56,7 @@ public class TypeAliasRegistry {
         try {
             return (Class<T>) Resources.classForName(alias);
         } catch (ClassNotFoundException e) {
-            throw new TypeException("不能处理" +  alias + "这个别名或者完全限定名, 找不到对应的类. 原因:" + e);
+            throw new TypeException("不能处理" +  alias + "这个别名或者完全限定名, 找不到对应的类.", e);
         }
     }
 }

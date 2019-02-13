@@ -1,6 +1,6 @@
 package com.wangtao.dbhelper.core;
 
-import com.wangtao.dbhelper.builder.xml.XmlConfigBuilder;
+import com.wangtao.dbhelper.builder.xml.XMLConfigBuilder;
 import com.wangtao.dbhelper.core.defaults.DefaultSqlSessionFactory;
 
 import java.io.Reader;
@@ -12,7 +12,7 @@ import java.io.Reader;
 public class SqlSessionFactoryBuilder {
 
     public SqlSessionFactory build(Reader reader) {
-        XmlConfigBuilder parser = new XmlConfigBuilder(reader);
+        XMLConfigBuilder parser = new XMLConfigBuilder(reader);
         Configuration configuration = parser.parse();
         return build(configuration);
     }

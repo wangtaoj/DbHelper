@@ -16,6 +16,7 @@ import com.wangtao.dbhelper.transaction.TransactionFactory;
 import com.wangtao.dbhelper.type.TypeAliasRegistry;
 
 import javax.sql.DataSource;
+import java.io.IOException;
 import java.io.Reader;
 import java.util.List;
 import java.util.Objects;
@@ -56,11 +57,16 @@ public class XMLConfigBuilder extends BaseBuilder {
     }
 
     private void parseConfiguration(XNode root) {
-        propertiesElement(root.evalNode("properties"));
-        Properties properties = settingsAsProperties(root.evalNode("settings"));
-        settingsElement(properties);
-        typeAliasesElement(root.evalNode("typeAliases"));
-        environmentsElement(root.evalNode("environments"));
+        try {
+            propertiesElement(root.evalNode("properties"));
+            Properties properties = settingsAsProperties(root.evalNode("settings"));
+            settingsElement(properties);
+            typeAliasesElement(root.evalNode("typeAliases"));
+            environmentsElement(root.evalNode("environments"));
+            mappersElement(root.evalNode("mappers"));
+        } catch (Exception e) {
+            throw new BuilderException("解析config文件出现严重错误.", e);
+        }
     }
 
     private void propertiesElement(XNode properties) {
@@ -167,5 +173,15 @@ public class XMLConfigBuilder extends BaseBuilder {
             return (DataSourceFactory) resolveAlias(type).newInstance();
         }
         throw new BuilderException("environment元素必须有一个dataSource子元素.");
+    }
+
+    private void mappersElement(XNode context) throws IOException {
+        if (context != null) {
+            List<XNode> mapperElements = context.getChildren();
+            for (XNode mapperElement : mapperElements) {
+                String resource = mapperElement.getStringAttribute("resource");
+                new XMLMapperBuilder(configuration, Resources.getResourceAsReader(resource), resource).parse();
+            }
+        }
     }
 }

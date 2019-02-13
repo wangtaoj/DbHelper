@@ -1,4 +1,4 @@
-package com.wangtao.dbhelper.bean;
+package com.wangtao.dbhelper.domian;
 
 import java.time.LocalDateTime;
 

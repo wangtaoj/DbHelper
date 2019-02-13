@@ -1,4 +1,4 @@
-package com.wangtao.dbhelper.bean;
+package com.wangtao.dbhelper.domian;
 
 public class Address {
     private Integer id;
@@ -9,7 +9,7 @@ public class Address {
 
     private String address;
 
-    private User user;
+    private Integer userId;
 
 
     public Integer getId() {
@@ -44,12 +44,12 @@ public class Address {
         this.address = address;
     }
 
-    public User getUserId() {
-        return this.user;
+    public Integer getUserId() {
+        return this.userId;
     }
 
-    public void setUserId(User user) {
-        this.user = user;
+    public void setUserId(Integer userId) {
+        this.userId = userId;
     }
 
 }

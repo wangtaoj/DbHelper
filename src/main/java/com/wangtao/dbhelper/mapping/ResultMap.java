@@ -16,6 +16,10 @@ public class ResultMap {
     private Set<String> mappedColumns = new HashSet<>();
     private Set<String> mappedProperties = new HashSet<>();
 
+    ResultMap() {
+
+    }
+
     public String getId() {
         return id;
     }

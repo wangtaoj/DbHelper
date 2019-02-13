@@ -1,6 +1,7 @@
 package com.wangtao.dbhelper.builder;
 
 import com.wangtao.dbhelper.core.Configuration;
+import com.wangtao.dbhelper.type.*;
 
 /**
  * @author wangtao
@@ -10,15 +11,21 @@ public abstract class BaseBuilder {
 
     protected final Configuration configuration;
 
-    public BaseBuilder(Configuration configuration) {
+    protected final TypeHandlerRegistry typeHandlerRegistry;
+
+    protected final TypeAliasRegistry typeAliasRegistry;
+
+    protected BaseBuilder(Configuration configuration) {
         this.configuration = configuration;
+        this.typeHandlerRegistry = configuration.getTypeHandlerRegistry();
+        this.typeAliasRegistry = configuration.getTypeAliasRegistry();
     }
 
-    public Boolean booleanOfValue(String value, boolean defaultValue) {
+    protected Boolean booleanOfValue(String value, boolean defaultValue) {
         return value == null ? defaultValue : Boolean.valueOf(value);
     }
 
-    public Integer IntegerOfValue(String value, int defaultValue) {
+    protected Integer IntegerOfValue(String value, int defaultValue) {
         return value == null ? defaultValue : Integer.valueOf(value);
     }
 
@@ -26,11 +33,34 @@ public abstract class BaseBuilder {
         return configuration;
     }
 
-    public <T> Class<? extends T> resolveAlias(String alias) {
-        return configuration.getTypeAliasRegistry().resolveAlias(alias);
+    protected <T> Class<? extends T> resolveAlias(String alias) {
+        return typeAliasRegistry.resolveAlias(alias);
     }
 
-    public <T> Class<? extends T> resolveClass(String clazz) {
+    protected <T> Class<? extends T> resolveClass(String clazz) {
+        if (clazz == null) {
+            return null;
+        }
         return resolveAlias(clazz);
+    }
+
+    protected JdbcType resolveJdbc(String name) {
+        if (name == null) {
+            return null;
+        }
+        try {
+            return JdbcType.valueOf(name);
+        } catch (IllegalArgumentException e) {
+            throw new BuilderException("错误的解析JdbcType, 请确保拼写正确.", e);
+        }
+    }
+
+    protected TypeHandler<?> resolveTypeHandler(String typeHandlerName) {
+        Class<? extends TypeHandler> typeHandlerClass = resolveClass(typeHandlerName);
+        try {
+            return typeHandlerClass.newInstance();
+        } catch (Exception e) {
+            throw new TypeException("错误的解析TypeHandler.", e);
+        }
     }
 }

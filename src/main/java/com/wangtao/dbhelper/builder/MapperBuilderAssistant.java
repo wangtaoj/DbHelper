@@ -48,7 +48,12 @@ public class MapperBuilderAssistant extends BaseBuilder {
     }
 
     public void addResultMap(String id, Class<?> type, List<ResultMapping> resultMappings) {
+        id = applyNamespace(id);
         ResultMap resutMap = new ResultMap.Builder(id, type).resultMappings(resultMappings).build();
         configuration.addResultMap(resutMap);
+    }
+
+    public String getResource() {
+        return resource;
     }
 }

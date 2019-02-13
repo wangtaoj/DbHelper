@@ -1,8 +1,10 @@
 package com.wangtao.dbhelper.core;
 
 import com.wangtao.dbhelper.mapping.Environment;
+import com.wangtao.dbhelper.mapping.MappedStatement;
 import com.wangtao.dbhelper.mapping.ResultMap;
 import com.wangtao.dbhelper.parser.XNode;
+import com.wangtao.dbhelper.reflection.MetaObject;
 import com.wangtao.dbhelper.type.JdbcType;
 import com.wangtao.dbhelper.type.TypeAliasRegistry;
 import com.wangtao.dbhelper.type.TypeHandlerRegistry;
@@ -44,9 +46,17 @@ public class Configuration {
      */
     protected Set<String> loadedResources = new HashSet<>();
 
+    /**
+     * 用于存放<resultMap>节点信息, key是namespace + "." + id
+     */
     protected Map<String, ResultMap> resultMaps = new StrictMap<>("ResultMap Collection");
 
+    /**
+     * 用于存放<sql>节点
+     */
     protected Map<String, XNode> sqlNodes = new StrictMap<>("sql元素集合");
+
+    protected Map<String, MappedStatement> mappedStatements = new StrictMap<>("增删改查标签集合");
 
     /**
      * 添加解析过的Mapper文件资源
@@ -71,6 +81,18 @@ public class Configuration {
      */
     public void addResultMap(ResultMap resultMap) {
         resultMaps.put(resultMap.getId(), resultMap);
+    }
+
+    public ResultMap getResultMap(String resultMapId) {
+        return resultMaps.get(resultMapId);
+    }
+
+    public void addMappedStatement(MappedStatement mappedStatement) {
+        mappedStatements.put(mappedStatement.getId(), mappedStatement);
+    }
+
+    public MetaObject newMetaObject(Object object) {
+        return MetaObject.forObject(object);
     }
 
     public Properties getVariables() {
@@ -126,6 +148,8 @@ public class Configuration {
     }
 
     protected static class StrictMap<K, V> extends HashMap<K, V> {
+
+        private static final long serialVersionUID = -2472336574571533492L;
 
         private String name;
 

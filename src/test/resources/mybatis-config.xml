@@ -17,8 +17,8 @@
 	</settings>
 
 	<typeAliases>
-		<typeAlias type="com.wangtao.dbhelper.bean.User" />
-		<typeAlias type="com.wangtao.dbhelper.bean.Address" alias="address" />
+		<typeAlias type="com.wangtao.dbhelper.domian.User" />
+		<typeAlias type="com.wangtao.dbhelper.domian.Address" alias="address" />
 	</typeAliases>
 
 	<environments default="mysql_development">

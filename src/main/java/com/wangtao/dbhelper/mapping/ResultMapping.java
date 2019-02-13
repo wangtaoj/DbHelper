@@ -10,6 +10,10 @@ public class ResultMapping {
 
     private String property;
 
+    ResultMapping() {
+
+    }
+
     public String getColumn() {
         return column;
     }
