@@ -14,7 +14,7 @@ public class SqlSessionFactoryTest {
     @Test
     public void build() throws IOException {
         SqlSessionFactory sqlSessionFactory =  new SqlSessionFactoryBuilder()
-                .build(Resources.getResourceAsReader("mybatis-config.xml"));
+                .build(Resources.getResourceAsReader("com/wangtao/dbhelper/builder/mybatis-config.xml"));
         Assert.assertNotNull(sqlSessionFactory);
     }
 }

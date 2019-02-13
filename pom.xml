@@ -23,6 +23,14 @@
       <optional>true</optional>
     </dependency>
 
+    <!-- 断言库 -->
+    <dependency>
+      <groupId>org.assertj</groupId>
+      <artifactId>assertj-core</artifactId>
+      <version>3.11.1</version>
+      <scope>test</scope>
+    </dependency>
+
     <!--logback日志框架 -->
     <dependency>
       <groupId>ch.qos.logback</groupId>
@@ -70,6 +78,15 @@
         </excludes>
       </resource>
     </resources>
+
+    <testResources>
+      <testResource>
+        <directory>${project.build.testSourceDirectory}</directory>
+        <excludes>
+          <exclude>**/*.java</exclude>
+        </excludes>
+      </testResource>
+    </testResources>
   </build>
 
 </project>

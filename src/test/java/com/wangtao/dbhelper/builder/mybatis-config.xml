@@ -14,6 +14,7 @@
 	<!--全局属性配置-->
 	<settings>
 		<setting name="mapUnderscoreToCamelCase" value="true"/>
+		<setting name="callSettersOnNulls" value="true" />
 	</settings>
 
 	<typeAliases>
@@ -34,8 +35,8 @@
 	</environments>
 	
 	<mappers>
-		<mapper resource="mappers/UserMapper.xml" />
-		<mapper resource="mappers/AddressMapper.xml" />
+		<mapper resource="com/wangtao/dbhelper/builder/AddressMapper.xml" />
+		<mapper resource="com/wangtao/dbhelper/builder/UserMapper.xml" />
 	</mappers>
 	
 </configuration>
