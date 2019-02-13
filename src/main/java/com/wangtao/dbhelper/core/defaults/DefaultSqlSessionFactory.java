@@ -3,6 +3,13 @@ package com.wangtao.dbhelper.core.defaults;
 import com.wangtao.dbhelper.core.Configuration;
 import com.wangtao.dbhelper.core.SqlSession;
 import com.wangtao.dbhelper.core.SqlSessionFactory;
+import com.wangtao.dbhelper.executor.Executor;
+import com.wangtao.dbhelper.executor.SimpleExecutor;
+import com.wangtao.dbhelper.mapping.Environment;
+import com.wangtao.dbhelper.transaction.Transaction;
+import com.wangtao.dbhelper.transaction.TransactionIsolationLevel;
+
+import javax.sql.DataSource;
 
 /**
  * @author wangtao
@@ -18,7 +25,25 @@ public class DefaultSqlSessionFactory implements SqlSessionFactory {
 
     @Override
     public SqlSession openSqlSession() {
-        return new DefaultSqlSession(configuration);
+        return openSqlSession(false, null);
+    }
+
+    @Override
+    public SqlSession openSqlSession(boolean autoCommit) {
+        return openSqlSession(autoCommit, null);
+    }
+
+    @Override
+    public SqlSession openSqlSession(boolean autoCommit, TransactionIsolationLevel level) {
+        return null;
+    }
+
+    private SqlSession openSqlSessionFromDataSource(boolean autoCommit, TransactionIsolationLevel level) {
+        Environment environment = configuration.getEnvironment();
+        DataSource dataSource = environment.getDataSource();
+        Transaction transaction = environment.getTransactionFactory().newTransaction(dataSource, autoCommit, level);
+        Executor executor = new SimpleExecutor(transaction);
+        return new DefaultSqlSession(configuration, executor);
     }
 
     public Configuration getConfiguration() {
