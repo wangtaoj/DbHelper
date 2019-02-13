@@ -8,7 +8,8 @@ import java.sql.Connection;
 import java.sql.SQLException;
 
 /**
- * Created by wangtao at 2018/12/25 15:34
+ * @author wangtao
+ * Created at 2018/12/25 15:34
  */
 public class JdbcTransaction implements Transaction {
 
@@ -22,7 +23,7 @@ public class JdbcTransaction implements Transaction {
     /**
      * 隔离级别
      **/
-    private TransactionIsolationLevel level;
+    private Integer isolationLevel;
 
     private DataSource dataSource;
 
@@ -31,15 +32,15 @@ public class JdbcTransaction implements Transaction {
     public JdbcTransaction(DataSource dataSource, boolean autoCommit, TransactionIsolationLevel level) {
         this.dataSource = dataSource;
         this.autoCommit = autoCommit;
-        this.level = level;
+        this.isolationLevel = level != null ? level.getLevel() : null;
     }
 
     @Override
     public Connection getConnection() throws SQLException {
         if (connection != null) {
             connection = dataSource.getConnection();
-            if (level != null)
-                connection.setTransactionIsolation(level.getLevel());
+            if (isolationLevel != null)
+                connection.setTransactionIsolation(isolationLevel);
             connection.setAutoCommit(autoCommit);
         }
         return connection;
@@ -68,10 +69,38 @@ public class JdbcTransaction implements Transaction {
     @Override
     public void close() throws SQLException {
         if (connection != null) {
+            resetAutoCommit();
+            connection.close();
             if (logger.isDebugEnabled()) {
                 logger.debug("Closing JDBC Connection{}", connection.hashCode());
             }
-            connection.close();
+        }
+    }
+
+    private void setAutoCommit() {
+        try {
+            if (connection.getAutoCommit() != autoCommit) {
+                connection.setAutoCommit(autoCommit);
+                if (logger.isDebugEnabled()) {
+                    logger.debug("setting value of autocommit to" + autoCommit +
+                            " on connection[" + connection.hashCode() + "].");
+                }
+            }
+        } catch (SQLException e) {
+            throw new TransactionException("设置事务自动提交属性失败, 驱动不支持!", e);
+        }
+    }
+
+    private void resetAutoCommit() {
+        try {
+            if (!connection.getAutoCommit()) {
+                connection.setAutoCommit(true);
+                if(logger.isDebugEnabled()) {
+                    logger.debug("reset value of autocommit to true on connection[" + connection.hashCode() + "].");
+                }
+            }
+        } catch (SQLException e) {
+            throw new TransactionException("设置事务自动提交属性失败, 驱动不支持!", e);
         }
     }
 }
