@@ -18,9 +18,8 @@ public class DefaultObjectFactory implements ObjectFactory {
     }
 
     @Override
-    public Object create(Class<?> clazz, int length) {
+    public Object createArray(Class<?> clazz, int length) {
         if (List.class.isAssignableFrom(clazz)) {
-
             return create(clazz, Collections.singletonList(int.class), Collections.singletonList(length));
         }
         return Array.newInstance(clazz, length);

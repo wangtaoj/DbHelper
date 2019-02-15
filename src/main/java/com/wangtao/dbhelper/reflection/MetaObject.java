@@ -155,6 +155,18 @@ public class MetaObject {
         return objectWrapper.getSetterType(name);
     }
 
+    /**
+     * 查找对象的属性名.
+     * 1. 如果对象是map, 返回name
+     * 2. 如果对象是实体, 返回类中真正的属性名.
+     * @param name 属性名, 忽略大小写
+     * @param useCamelCaseMapping 是否开启下划线转驼峰
+     * @return 返回真正的属性名
+     */
+    public String findProperty(String name, boolean useCamelCaseMapping) {
+        return objectWrapper.findProperty(name, useCamelCaseMapping);
+    }
+
     public Object getOriginalObject() {
         return originalObject;
     }

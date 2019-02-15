@@ -83,7 +83,7 @@ public class MetaClass {
         if (useCamelCaseMapping) {
             propName = propName.replace("_", "");
         }
-        return reflector.findPropName(propName);
+        return findPropName(propName);
     }
 
     /**

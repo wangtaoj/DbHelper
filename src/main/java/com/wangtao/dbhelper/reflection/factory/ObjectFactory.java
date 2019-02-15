@@ -23,7 +23,7 @@ public interface ObjectFactory {
      * @param length 数组长度或者List的大小.
      * @return 返回一个数组或者一个List.
      */
-    Object create(Class<?> clazz, int length);
+    Object createArray(Class<?> clazz, int length);
 
     /**
      * 根据指定的构造方法实例化对象.
