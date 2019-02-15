@@ -63,4 +63,13 @@ public abstract class BaseBuilder {
             throw new TypeException("错误的解析TypeHandler.", e);
         }
     }
+
+    protected TypeHandler<?> getTypeHandler(Class<?> javaType, JdbcType jdbcType) {
+        TypeHandler<?> typeHandler = typeHandlerRegistry.getTypeHandler(javaType, jdbcType);
+        if (typeHandler == null) {
+            throw new TypeException("we can't find the suitable type handler by '" +
+                    javaType + "' and '" + jdbcType + "'.");
+        }
+        return typeHandler;
+    }
 }

@@ -101,7 +101,7 @@ public class XMLMapperBuilder extends BaseBuilder {
         Class<?> javaType = resolveJavaType(javaTypeString, property, resultType);
         String jdbcTypeString = context.getStringAttribute("jdbcType");
         JdbcType jdbcType = resolveJdbc(jdbcTypeString);
-        TypeHandler<?> typeHandler = typeHandlerRegistry.getTypeHandler(javaType, jdbcType);
+        TypeHandler<?> typeHandler = getTypeHandler(javaType, jdbcType);
         if (column == null || column.isEmpty() || property == null || property.isEmpty()) {
             throw new BuilderException(resource + "中的" + context.getName() + "元素的column与property属性是必须的.");
         }
