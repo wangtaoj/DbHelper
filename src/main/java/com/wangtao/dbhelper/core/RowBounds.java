@@ -5,8 +5,8 @@ package com.wangtao.dbhelper.core;
  */
 public class RowBounds {
 
-    private static final int NO_OFFSET = -1;
-    private static final int NO_LIMIT = Integer.MAX_VALUE;
+    public static final int NO_OFFSET = 0;
+    public static final int NO_LIMIT = Integer.MAX_VALUE;
     public static final RowBounds DEFAULT = new RowBounds(NO_OFFSET, NO_LIMIT);
 
     /**
