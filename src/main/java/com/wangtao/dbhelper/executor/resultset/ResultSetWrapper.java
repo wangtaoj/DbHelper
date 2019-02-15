@@ -35,13 +35,13 @@ public class ResultSetWrapper {
     private Map<String, JdbcType> jdbcTypes = new HashMap<>();
 
     /**
-     * 映射的列名
+     * 映射的列名(大写)
      * key: resultMap的id
      **/
     private Map<String, List<String>> mappedColumnNamesMap = new HashMap<>();
 
     /**
-     * 未映射的列名
+     * 未映射的列名(大写)
      * key: resultMap的id
      **/
     private Map<String, List<String>> unMappedColumnNamesMap = new HashMap<>();
@@ -86,7 +86,7 @@ public class ResultSetWrapper {
     }
 
     /**
-     * 获取未映射过的列名列表
+     * 获取未映射过的列名列表, 列名为全大写.
      * @param resultMap resultMap对象
      * @return 列名列表
      */
@@ -94,7 +94,7 @@ public class ResultSetWrapper {
         List<String> unMappedColumnNames = unMappedColumnNamesMap.get(resultMap.getId());
         if(unMappedColumnNames == null) {
             loadColumnNames(resultMap);
-            return mappedColumnNamesMap.get(resultMap.getId());
+            return unMappedColumnNamesMap.get(resultMap.getId());
         } else {
             return unMappedColumnNames;
         }
@@ -103,14 +103,14 @@ public class ResultSetWrapper {
     private void loadColumnNames(ResultMap resultMap) {
         List<String> mappedColumnNames = new ArrayList<>();
         List<String> unMappedColumnNames = new ArrayList<>();
+        Set<String> mappedColumnSet = resultMap.getMappedColumns().stream()
+                .map(v -> v.toUpperCase(Locale.ENGLISH)).collect(Collectors.toSet());
         for (String columnName : columnNames) {
             String upperColumnName = columnName.toUpperCase();
-            Set<String> mappedColumnSet = resultMap.getMappedColumns().stream()
-                    .map(v -> v.toUpperCase(Locale.ENGLISH)).collect(Collectors.toSet());
             if(mappedColumnSet.contains(upperColumnName)) {
-                mappedColumnNames.add(columnName);
+                mappedColumnNames.add(upperColumnName);
             } else {
-                unMappedColumnNames.add(columnName);
+                unMappedColumnNames.add(upperColumnName);
             }
         }
         mappedColumnNamesMap.put(resultMap.getId(), mappedColumnNames);
@@ -123,5 +123,9 @@ public class ResultSetWrapper {
 
     public List<String> getClassNames() {
         return classNames;
+    }
+
+    public List<String> getColumnNames() {
+        return columnNames;
     }
 }

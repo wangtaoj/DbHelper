@@ -23,12 +23,22 @@
       <optional>true</optional>
     </dependency>
 
+    <!-- mock -->
+    <dependency>
+      <groupId>org.mockito</groupId>
+      <artifactId>mockito-core</artifactId>
+      <version>2.21.0</version>
+      <scope>test</scope>
+      <optional>true</optional>
+    </dependency>
+
     <!-- 断言库 -->
     <dependency>
       <groupId>org.assertj</groupId>
       <artifactId>assertj-core</artifactId>
       <version>3.11.1</version>
       <scope>test</scope>
+      <optional>true</optional>
     </dependency>
 
     <!--logback日志框架 -->

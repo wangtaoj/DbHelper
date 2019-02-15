@@ -5,6 +5,8 @@ import com.wangtao.dbhelper.mapping.MappedStatement;
 import com.wangtao.dbhelper.mapping.ResultMap;
 import com.wangtao.dbhelper.parser.XNode;
 import com.wangtao.dbhelper.reflection.MetaObject;
+import com.wangtao.dbhelper.reflection.factory.DefaultObjectFactory;
+import com.wangtao.dbhelper.reflection.factory.ObjectFactory;
 import com.wangtao.dbhelper.type.JdbcType;
 import com.wangtao.dbhelper.type.TypeAliasRegistry;
 import com.wangtao.dbhelper.type.TypeHandlerRegistry;
@@ -39,6 +41,8 @@ public class Configuration {
     protected boolean callSettersOnNulls;
 
     protected Environment environment;
+
+    protected ObjectFactory objectFactory = new DefaultObjectFactory();
 
     /**
      * Mapper文件集合, 用于判断是否解析过此Mapper文件.
@@ -91,6 +95,10 @@ public class Configuration {
         mappedStatements.put(mappedStatement.getId(), mappedStatement);
     }
 
+    public MappedStatement getMappedStatement(String statementId) {
+        return mappedStatements.get(statementId);
+    }
+
     public MetaObject newMetaObject(Object object) {
         return MetaObject.forObject(object);
     }
@@ -141,6 +149,14 @@ public class Configuration {
 
     public void setEnvironment(Environment environment) {
         this.environment = environment;
+    }
+
+    public ObjectFactory getObjectFactory() {
+        return objectFactory;
+    }
+
+    public void setObjectFactory(ObjectFactory objectFactory) {
+        this.objectFactory = objectFactory;
     }
 
     public Map<String, XNode> getSqlNodes() {
