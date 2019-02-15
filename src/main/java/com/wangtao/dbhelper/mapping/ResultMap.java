@@ -28,6 +28,14 @@ public class ResultMap {
         return type;
     }
 
+    public Set<String> getMappedColumns() {
+        return mappedColumns;
+    }
+
+    public Set<String> getMappedProperties() {
+        return mappedProperties;
+    }
+
     public List<ResultMapping> getResultMappings() {
         return resultMappings;
     }
