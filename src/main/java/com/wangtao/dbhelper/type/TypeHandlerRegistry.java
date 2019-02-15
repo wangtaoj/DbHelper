@@ -43,7 +43,7 @@ public class TypeHandlerRegistry {
         register(JdbcType.VARCHAR, new StringTypeHandler());
 
         register(java.util.Date.class, new DateTypeHandler());
-        register(java.util.Date.class, JdbcType.DATE ,new DateOnlyTypeHandler());
+        register(java.util.Date.class, JdbcType.DATE, new DateOnlyTypeHandler());
         register(java.util.Date.class, JdbcType.TIME, new TimeOnlyTypeHandler());
 
         register(Timestamp.class, new SqlTimestampTypeHandler());
@@ -71,8 +71,8 @@ public class TypeHandlerRegistry {
 
     /**
      * 注册TypeHandler
-     * @param type Java类型
-     * @param jdbcType 对应的数据库类型
+     * @param type        Java类型
+     * @param jdbcType    对应的数据库类型
      * @param typeHandler 类型处理器
      */
     public void register(Class<?> type, JdbcType jdbcType, TypeHandler<?> typeHandler) {
@@ -90,27 +90,25 @@ public class TypeHandlerRegistry {
      * 对于一个类型对应一个Handler时直接返回
      * 如果一个类型对应多个Handler, 则会根据jdbcType查找, 没找到则返回默认的Handler
      * 一个类型对应的默认Handler是key=null所对应的
-     * @param type Java类型
+     * @param type     Java类型
      * @param jdbcType jdbcType
-     * @param <T> 泛型参数
+     * @param <T>      泛型参数
      * @return 类型处理器
      */
     @SuppressWarnings("unchecked")
     public <T> TypeHandler<T> getTypeHandler(Class<T> type, JdbcType jdbcType) {
         Map<JdbcType, TypeHandler<?>> jdbcHandlerMap = TYPE_HANDLER_MAP.get(type);
-        if(jdbcHandlerMap != null) {
+        if (jdbcHandlerMap != null) {
             TypeHandler<?> typeHandler = jdbcHandlerMap.get(jdbcType);
-            if(typeHandler == null) {
+            if (typeHandler == null) {
                 typeHandler = jdbcHandlerMap.get(null);
             }
-            if(typeHandler != null) {
+            if (typeHandler != null) {
                 return (TypeHandler<T>) typeHandler;
             }
         }
-        throw new TypeException("无法获取类型处理器, 后续操作将无法进行. 引起异常的类: "
-                + type.getName() + ", jdbcType: " + jdbcType);
+        return null;
     }
-
 
     public <T> TypeHandler<T> getTypeHandler(Class<T> type) {
         return getTypeHandler(type, null);
@@ -119,9 +117,24 @@ public class TypeHandlerRegistry {
     @SuppressWarnings("unchecked")
     public <T> TypeHandler<T> getTypeHandler(JdbcType jdbcType) {
         TypeHandler<?> typeHandler = JDBC_TYPE_HANDLER_MAP.get(jdbcType);
-        if(typeHandler != null) {
-            return (TypeHandler<T>) typeHandler;
-        }
-        throw new TypeException("无法获取类型处理器, 后续操作将无法进行. 引起异常的jdbcType: " + jdbcType);
+        return (TypeHandler<T>) typeHandler;
+    }
+
+    public boolean hasTypeHandler(Class<?> type) {
+        return hasTypeHandler(type, null);
+    }
+
+    /**
+     * 判断java类型以及jdbc类型是否存在对应的TypeHandler
+     * @param type java类型
+     * @param jdbcType jdbc类型
+     * @return 存在返回true, 否则返回false.
+     */
+    public boolean hasTypeHandler(Class<?> type, JdbcType jdbcType) {
+        return type != null && getTypeHandler(type, jdbcType) != null;
+    }
+
+    public boolean hasTypeHandler(JdbcType jdbcType) {
+        return jdbcType != null && getTypeHandler(jdbcType) != null;
     }
 }
