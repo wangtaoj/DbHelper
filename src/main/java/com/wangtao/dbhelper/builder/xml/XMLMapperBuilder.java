@@ -8,6 +8,9 @@ import com.wangtao.dbhelper.mapping.ResultMapping;
 import com.wangtao.dbhelper.parser.DtdEntityResolver;
 import com.wangtao.dbhelper.parser.XNode;
 import com.wangtao.dbhelper.parser.XpathParser;
+import com.wangtao.dbhelper.reflection.MetaClass;
+import com.wangtao.dbhelper.type.JdbcType;
+import com.wangtao.dbhelper.type.TypeHandler;
 
 import java.io.Reader;
 import java.util.ArrayList;
@@ -73,8 +76,7 @@ public class XMLMapperBuilder extends BaseBuilder {
         String id = resultMapNode.getStringAttribute("id",
                 resultMapNode.getValueBasedIdentifier());
         // type属性
-        String type = resultMapNode.getStringAttribute("type",
-                resultMapNode.getStringAttribute("javaType"));
+        String type = resultMapNode.getStringAttribute("type");
         if (type == null || type.isEmpty()) {
             throw new BuilderException(resource + " Mapper文件定义的resultMap元素必须要一个type属性");
         }
@@ -83,7 +85,7 @@ public class XMLMapperBuilder extends BaseBuilder {
         for (XNode child : resultMapNode.getChildren()) {
             ResultMapping resultMapping;
             if ("id".equals(child.getName()) || "result".equals(child.getName())) {
-                resultMapping = buildResultMappingByIdOrResult(child);
+                resultMapping = buildResultMappingByIdOrResult(child, typeClass);
             } else {
                 throw new BuilderException("resultMap元素只能有id或者result这两种子元素");
             }
@@ -92,13 +94,35 @@ public class XMLMapperBuilder extends BaseBuilder {
         assistant.addResultMap(id, typeClass, resultMappings);
     }
 
-    private ResultMapping buildResultMappingByIdOrResult(XNode context) {
+    private ResultMapping buildResultMappingByIdOrResult(XNode context, Class<?> resultType) {
         String column = context.getStringAttribute("column");
         String property = context.getStringAttribute("property");
+        String javaTypeString = context.getStringAttribute("javaType");
+        Class<?> javaType = resolveJavaType(javaTypeString, property, resultType);
+        String jdbcTypeString = context.getStringAttribute("jdbcType");
+        JdbcType jdbcType = resolveJdbc(jdbcTypeString);
+        TypeHandler<?> typeHandler = typeHandlerRegistry.getTypeHandler(javaType, jdbcType);
         if (column == null || column.isEmpty() || property == null || property.isEmpty()) {
             throw new BuilderException(resource + "中的" + context.getName() + "元素的column与property属性是必须的.");
         }
-        return new ResultMapping.Builder().column(column).property(property).build();
+        return new ResultMapping.Builder(column, property)
+                .jdbcType(jdbcType).javaType(javaType)
+                .typeHandler(typeHandler)
+                .build();
+    }
+
+    private Class<?> resolveJavaType(String javaTypeString, String property, Class<?> resultType) {
+        Class<?> javaType = resolveClass(javaTypeString);
+        if(javaType == null) {
+            try {
+                MetaClass metaClass = MetaClass.forClass(resultType);
+                // resultType = map, 会报错.
+                javaType = metaClass.getSetterType(property);
+            } catch (Exception e) {
+                javaType = null;
+            }
+        }
+        return javaType == null ? Object.class : javaType;
     }
 
     private void sqlElements(List<XNode> sqlNodes) {
