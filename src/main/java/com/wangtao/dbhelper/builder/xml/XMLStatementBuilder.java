@@ -4,10 +4,7 @@ import com.wangtao.dbhelper.builder.BaseBuilder;
 import com.wangtao.dbhelper.builder.BuilderException;
 import com.wangtao.dbhelper.builder.MapperBuilderAssistant;
 import com.wangtao.dbhelper.core.Configuration;
-import com.wangtao.dbhelper.mapping.MappedStatement;
-import com.wangtao.dbhelper.mapping.ResultMap;
-import com.wangtao.dbhelper.mapping.SqlCommandType;
-import com.wangtao.dbhelper.mapping.SqlSource;
+import com.wangtao.dbhelper.mapping.*;
 import com.wangtao.dbhelper.parser.XNode;
 
 import java.util.ArrayList;
@@ -45,6 +42,8 @@ public class XMLStatementBuilder extends BaseBuilder {
         String nodeName = context.getName();
         SqlCommandType sqlCommandType = SqlCommandType.valueOf(nodeName.toUpperCase(Locale.ENGLISH));
 
+        StatementType statementType = StatementType.valueOf(context.getStringAttribute("statementType", "PREPARED"));
+
         // 解析<include>元素, 并移除.
         XMLIncludeTransformer includeTransformer = new XMLIncludeTransformer(configuration, assistant);
         includeTransformer.parseInclude(context.getNode());
@@ -54,6 +53,7 @@ public class XMLStatementBuilder extends BaseBuilder {
         SqlSource sqlSource = xmlScriptBuilder.createSqlSource();
         MappedStatement mappedStatement = new MappedStatement.Builder(configuration, id, sqlSource)
                 .resultMap(getResultMap(id, resultMap, resultTypeClass)).sqlCommandType(sqlCommandType)
+                .statementType(statementType)
                 .build();
         configuration.addMappedStatement(mappedStatement);
     }

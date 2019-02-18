@@ -18,6 +18,8 @@ public class MappedStatement {
 
     private SqlCommandType sqlCommandType;
 
+    private StatementType statementType;
+
     MappedStatement(Configuration configuration) {
         this.configuration = configuration;
     }
@@ -42,6 +44,10 @@ public class MappedStatement {
         return sqlCommandType;
     }
 
+    public StatementType getStatementType() {
+        return statementType;
+    }
+
     public static class Builder {
         private MappedStatement mappedStatement;
 
@@ -58,6 +64,11 @@ public class MappedStatement {
 
         public Builder sqlCommandType(SqlCommandType sqlCommandType) {
             mappedStatement.sqlCommandType = sqlCommandType;
+            return this;
+        }
+
+        public Builder statementType(StatementType statementType) {
+            mappedStatement.statementType = statementType;
             return this;
         }
 
