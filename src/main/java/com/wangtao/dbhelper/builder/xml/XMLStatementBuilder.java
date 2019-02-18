@@ -42,7 +42,12 @@ public class XMLStatementBuilder extends BaseBuilder {
         String nodeName = context.getName();
         SqlCommandType sqlCommandType = SqlCommandType.valueOf(nodeName.toUpperCase(Locale.ENGLISH));
 
-        StatementType statementType = StatementType.valueOf(context.getStringAttribute("statementType", "PREPARED"));
+        StatementType statementType = StatementType.valueOf(context.getStringAttribute("statementType",
+                StatementType.PREPARED.name()));
+        Integer fetchSize = context.getIntegerAttribute("fetchSize");
+        Integer timeout = context.getIntegerAttribute("timeout");
+        ResultSetType resultSetType = ResultSetType.valueOf(context.getStringAttribute("resultSetType",
+                ResultSetType.DEFAULT.name()));
 
         // 解析<include>元素, 并移除.
         XMLIncludeTransformer includeTransformer = new XMLIncludeTransformer(configuration, assistant);
@@ -53,7 +58,8 @@ public class XMLStatementBuilder extends BaseBuilder {
         SqlSource sqlSource = xmlScriptBuilder.createSqlSource();
         MappedStatement mappedStatement = new MappedStatement.Builder(configuration, id, sqlSource)
                 .resultMap(getResultMap(id, resultMap, resultTypeClass)).sqlCommandType(sqlCommandType)
-                .statementType(statementType)
+                .statementType(statementType).fetchSize(fetchSize)
+                .timeout(timeout).resultSetType(resultSetType)
                 .build();
         configuration.addMappedStatement(mappedStatement);
     }

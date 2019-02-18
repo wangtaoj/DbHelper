@@ -20,6 +20,12 @@ public class MappedStatement {
 
     private StatementType statementType;
 
+    private Integer fetchSize;
+
+    private Integer timeout;
+
+    private ResultSetType resultSetType;
+
     MappedStatement(Configuration configuration) {
         this.configuration = configuration;
     }
@@ -48,6 +54,18 @@ public class MappedStatement {
         return statementType;
     }
 
+    public Integer getFetchSize() {
+        return fetchSize;
+    }
+
+    public Integer getTimeout() {
+        return timeout;
+    }
+
+    public ResultSetType getResultSetType() {
+        return resultSetType;
+    }
+
     public static class Builder {
         private MappedStatement mappedStatement;
 
@@ -69,6 +87,21 @@ public class MappedStatement {
 
         public Builder statementType(StatementType statementType) {
             mappedStatement.statementType = statementType;
+            return this;
+        }
+
+        public Builder fetchSize(Integer fetchSize) {
+            mappedStatement.fetchSize = fetchSize;
+            return this;
+        }
+
+        public Builder timeout(Integer timeout) {
+            mappedStatement.timeout = timeout;
+            return this;
+        }
+
+        public Builder resultSetType(ResultSetType resultSetType) {
+            mappedStatement.resultSetType = resultSetType;
             return this;
         }
 
