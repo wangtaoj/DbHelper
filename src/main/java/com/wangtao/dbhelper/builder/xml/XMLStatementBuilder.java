@@ -49,6 +49,11 @@ public class XMLStatementBuilder extends BaseBuilder {
         ResultSetType resultSetType = ResultSetType.valueOf(context.getStringAttribute("resultSetType",
                 ResultSetType.DEFAULT.name()));
 
+        String keyProperty = context.getStringAttribute("keyProperty");
+        String keyColumn = context.getStringAttribute("keyColumn");
+        boolean useGeneratedKeys = context.getBooleanAttribute("useGeneratedKeys", false);
+        KeyGenerator keyGenerator = useGeneratedKeys ? JDBCKeyGenerator.INSTANCE : NoKeyGenerator.INSTANCE;
+
         // 解析<include>元素, 并移除.
         XMLIncludeTransformer includeTransformer = new XMLIncludeTransformer(configuration, assistant);
         includeTransformer.parseInclude(context.getNode());
@@ -60,7 +65,8 @@ public class XMLStatementBuilder extends BaseBuilder {
                 .resultMap(getResultMap(id, resultMap, resultTypeClass)).sqlCommandType(sqlCommandType)
                 .statementType(statementType).fetchSize(fetchSize)
                 .timeout(timeout).resultSetType(resultSetType)
-                .build();
+                .keyProperty(keyProperty).keyColumn(keyColumn)
+                .keyGenerator(keyGenerator).build();
         configuration.addMappedStatement(mappedStatement);
     }
 

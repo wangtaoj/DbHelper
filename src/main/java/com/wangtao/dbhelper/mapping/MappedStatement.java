@@ -2,6 +2,8 @@ package com.wangtao.dbhelper.mapping;
 
 import com.wangtao.dbhelper.core.Configuration;
 
+import java.util.Arrays;
+
 /**
  * @author wangtao
  * Created at 2019/1/22 10:35
@@ -25,6 +27,12 @@ public class MappedStatement {
     private Integer timeout;
 
     private ResultSetType resultSetType;
+
+    private String[] keyPropertys;
+
+    private String[] keyColumns;
+
+    private KeyGenerator keyGenerator;
 
     MappedStatement(Configuration configuration) {
         this.configuration = configuration;
@@ -66,6 +74,18 @@ public class MappedStatement {
         return resultSetType;
     }
 
+    public String[] getKeyPropertys() {
+        return keyPropertys;
+    }
+
+    public String[] getKeyColumns() {
+        return keyColumns;
+    }
+
+    public KeyGenerator getKeyGenerator() {
+        return keyGenerator;
+    }
+
     public static class Builder {
         private MappedStatement mappedStatement;
 
@@ -103,6 +123,28 @@ public class MappedStatement {
         public Builder resultSetType(ResultSetType resultSetType) {
             mappedStatement.resultSetType = resultSetType;
             return this;
+        }
+
+        public Builder keyProperty(String keyProperty) {
+            mappedStatement.keyPropertys = convertStringToArray(keyProperty);
+            return this;
+        }
+
+        public Builder keyColumn(String keyColumn) {
+            mappedStatement.keyColumns = convertStringToArray(keyColumn);
+            return this;
+        }
+
+        public Builder keyGenerator(KeyGenerator keyGenerator) {
+            mappedStatement.keyGenerator = keyGenerator;
+            return this;
+        }
+
+        private static String[] convertStringToArray(String content) {
+            if(content == null || content.trim().isEmpty()) {
+                return new String[]{};
+            }
+            return Arrays.stream(content.split(",")).map(String::trim).toArray(String[]::new);
         }
 
         public MappedStatement build() {

@@ -1,5 +1,9 @@
 package com.wangtao.dbhelper.core;
 
+import com.wangtao.dbhelper.executor.resultset.DefaultResultSetHandler;
+import com.wangtao.dbhelper.executor.resultset.ResultSetHandler;
+import com.wangtao.dbhelper.executor.statement.PreparedStatementHandler;
+import com.wangtao.dbhelper.executor.statement.StatementHandler;
 import com.wangtao.dbhelper.mapping.Environment;
 import com.wangtao.dbhelper.mapping.MappedStatement;
 import com.wangtao.dbhelper.mapping.ResultMap;
@@ -101,6 +105,20 @@ public class Configuration {
 
     public MetaObject newMetaObject(Object object) {
         return MetaObject.forObject(object);
+    }
+
+    public ResultSetHandler newResultSetHandler(MappedStatement ms, RowBounds rowBounds) {
+        return new DefaultResultSetHandler(ms, rowBounds);
+    }
+
+    public StatementHandler newStatementHandler(MappedStatement ms, RowBounds rowBounds) {
+        switch (ms.getStatementType()) {
+            case PREPARED:
+                return new PreparedStatementHandler(ms, rowBounds);
+            default:
+                throw new IllegalArgumentException("we only support PreparedStatement now.");
+        }
+
     }
 
     public Properties getVariables() {
