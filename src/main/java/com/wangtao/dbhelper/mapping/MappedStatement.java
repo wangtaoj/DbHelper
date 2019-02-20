@@ -43,6 +43,10 @@ public class MappedStatement {
         this.configuration = configuration;
     }
 
+    public BoundSql getBoundSql(Object parameter) {
+        return sqlSource.getBoundSql(parameter);
+    }
+
     public String getId() {
         return id;
     }

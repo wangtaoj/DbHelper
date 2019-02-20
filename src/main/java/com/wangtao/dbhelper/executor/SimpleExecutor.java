@@ -36,7 +36,7 @@ public class SimpleExecutor implements Executor {
         if (closed) {
             throw new ExecutorException("executor is closed!");
         }
-        StatementHandler statementHandler = configuration.newStatementHandler(ms, rowBounds);
+        StatementHandler statementHandler = configuration.newStatementHandler(ms, rowBounds, parameter);
         Statement statement = prepareStatement(statementHandler, ms);
         return statementHandler.query(statement);
     }
@@ -44,7 +44,9 @@ public class SimpleExecutor implements Executor {
     private Statement prepareStatement(StatementHandler handler, MappedStatement ms) {
         try {
             Connection connection = getConnection(ms);
-            return handler.prepare(connection);
+            Statement statement = handler.prepare(connection);
+            handler.parameterize(statement);
+            return statement;
         } catch (SQLException e) {
             throw new ExecutorException("Getting the statement occur error.", e);
         }

@@ -2,6 +2,7 @@ package com.wangtao.dbhelper.executor.statement;
 
 import com.wangtao.dbhelper.core.Configuration;
 import com.wangtao.dbhelper.core.RowBounds;
+import com.wangtao.dbhelper.executor.parameter.ParameterHandler;
 import com.wangtao.dbhelper.executor.resultset.ResultSetHandler;
 import com.wangtao.dbhelper.mapping.BoundSql;
 import com.wangtao.dbhelper.mapping.MappedStatement;
@@ -16,19 +17,22 @@ import java.sql.Statement;
  */
 public abstract class BaseStatementHandler implements StatementHandler {
 
-    protected ResultSetHandler resultSetHandler;
+    protected final ResultSetHandler resultSetHandler;
 
-    protected Configuration configuration;
+    protected final Configuration configuration;
 
-    protected MappedStatement ms;
+    protected final MappedStatement ms;
 
-    protected BoundSql boundSql;
+    protected final BoundSql boundSql;
 
-    public BaseStatementHandler(MappedStatement ms, RowBounds rowBounds, BoundSql boundSql) {
+    protected final ParameterHandler parameterHandler;
+
+    public BaseStatementHandler(MappedStatement ms, RowBounds rowBounds, Object parameter) {
         this.ms = ms;
         this.configuration = ms.getConfiguration();
         this.resultSetHandler = configuration.newResultSetHandler(ms, rowBounds);
-        this.boundSql = boundSql;
+        this.boundSql = ms.getBoundSql(parameter);
+        this.parameterHandler = configuration.newParameterHandler(boundSql);
     }
 
     @Override

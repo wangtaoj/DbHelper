@@ -1,10 +1,7 @@
 package com.wangtao.dbhelper.executor.statement;
 
-import com.wangtao.dbhelper.core.Configuration;
 import com.wangtao.dbhelper.core.RowBounds;
 import com.wangtao.dbhelper.executor.keygen.JDBCKeyGenerator;
-import com.wangtao.dbhelper.executor.resultset.ResultSetHandler;
-import com.wangtao.dbhelper.mapping.BoundSql;
 import com.wangtao.dbhelper.mapping.MappedStatement;
 import com.wangtao.dbhelper.mapping.ResultSetType;
 
@@ -17,16 +14,8 @@ import java.util.List;
  */
 public class PreparedStatementHandler extends BaseStatementHandler {
 
-    protected ResultSetHandler resultSetHandler;
-
-    protected Configuration configuration;
-
-    protected MappedStatement ms;
-
-    protected BoundSql boundSql;
-
-    public PreparedStatementHandler(MappedStatement ms, RowBounds rowBounds, BoundSql boundSql) {
-        super(ms, rowBounds, boundSql);
+    public PreparedStatementHandler(MappedStatement ms, RowBounds rowBounds, Object parameter) {
+        super(ms, rowBounds, parameter);
     }
 
     @Override
@@ -50,5 +39,10 @@ public class PreparedStatementHandler extends BaseStatementHandler {
         } else {
             return connection.prepareStatement(sql, ms.getResultSetType().getValue(), ResultSet.CONCUR_READ_ONLY);
         }
+    }
+
+    @Override
+    public void parameterize(Statement statement) {
+        parameterHandler.setParameters((PreparedStatement) statement);
     }
 }

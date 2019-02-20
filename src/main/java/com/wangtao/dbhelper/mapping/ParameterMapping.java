@@ -14,6 +14,9 @@ public class ParameterMapping {
 
     private JdbcType jdbcType;
 
+    /**
+     * 如果#{}表达式没有指定typeHandler, typeHandler = null
+     */
     private TypeHandler<?> typeHandler;
 
     ParameterMapping() {

@@ -1,9 +1,12 @@
 package com.wangtao.dbhelper.core;
 
+import com.wangtao.dbhelper.executor.parameter.DefaultParameterHandler;
+import com.wangtao.dbhelper.executor.parameter.ParameterHandler;
 import com.wangtao.dbhelper.executor.resultset.DefaultResultSetHandler;
 import com.wangtao.dbhelper.executor.resultset.ResultSetHandler;
 import com.wangtao.dbhelper.executor.statement.PreparedStatementHandler;
 import com.wangtao.dbhelper.executor.statement.StatementHandler;
+import com.wangtao.dbhelper.mapping.BoundSql;
 import com.wangtao.dbhelper.mapping.Environment;
 import com.wangtao.dbhelper.mapping.MappedStatement;
 import com.wangtao.dbhelper.mapping.ResultMap;
@@ -111,14 +114,18 @@ public class Configuration {
         return new DefaultResultSetHandler(ms, rowBounds);
     }
 
-    public StatementHandler newStatementHandler(MappedStatement ms, RowBounds rowBounds) {
+    public StatementHandler newStatementHandler(MappedStatement ms, RowBounds rowBounds, Object parameter) {
         switch (ms.getStatementType()) {
             case PREPARED:
-                return new PreparedStatementHandler(ms, rowBounds);
+                return new PreparedStatementHandler(ms, rowBounds, parameter);
             default:
                 throw new IllegalArgumentException("we only support PreparedStatement now.");
         }
 
+    }
+
+    public ParameterHandler newParameterHandler(BoundSql boundSql) {
+        return new DefaultParameterHandler(this, boundSql);
     }
 
     public Properties getVariables() {
