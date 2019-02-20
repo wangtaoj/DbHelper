@@ -42,7 +42,7 @@ public class DefaultSqlSessionFactory implements SqlSessionFactory {
         Environment environment = configuration.getEnvironment();
         DataSource dataSource = environment.getDataSource();
         Transaction transaction = environment.getTransactionFactory().newTransaction(dataSource, autoCommit, level);
-        Executor executor = new SimpleExecutor(transaction);
+        Executor executor = new SimpleExecutor(configuration, transaction);
         return new DefaultSqlSession(configuration, executor);
     }
 

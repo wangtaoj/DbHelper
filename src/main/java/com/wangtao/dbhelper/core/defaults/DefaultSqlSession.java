@@ -1,11 +1,16 @@
 package com.wangtao.dbhelper.core.defaults;
 
 import com.wangtao.dbhelper.core.Configuration;
+import com.wangtao.dbhelper.core.ParamMap;
 import com.wangtao.dbhelper.core.RowBounds;
 import com.wangtao.dbhelper.core.SqlSession;
 import com.wangtao.dbhelper.exception.TooManyResultException;
+import com.wangtao.dbhelper.executor.Executor;
+import com.wangtao.dbhelper.executor.ExecutorException;
+import com.wangtao.dbhelper.mapping.MappedStatement;
 
-import java.io.IOException;
+import java.sql.SQLException;
+import java.util.Collection;
 import java.util.List;
 
 /**
@@ -16,8 +21,11 @@ public class DefaultSqlSession implements SqlSession {
 
     private final Configuration configuration;
 
-    public DefaultSqlSession(Configuration configuration) {
+    private final Executor executor;
+
+    public DefaultSqlSession(Configuration configuration, Executor executor) {
         this.configuration = configuration;
+        this.executor = executor;
     }
 
     @Override
@@ -31,7 +39,7 @@ public class DefaultSqlSession implements SqlSession {
         if (list.size() == 1) {
             return list.get(0);
         }
-        if(list.isEmpty()) {
+        if (list.isEmpty()) {
             return null;
         }
         throw new TooManyResultException(String.format("期待的是单个记录, 实际有%d条", list.size()));
@@ -49,7 +57,12 @@ public class DefaultSqlSession implements SqlSession {
 
     @Override
     public <T> List<T> selectList(String statement, Object parameter, RowBounds rowBounds) {
-        return null;
+        MappedStatement ms = configuration.getMappedStatement(statement);
+        try {
+            return executor.query(ms, wrapCollection(parameter), rowBounds);
+        } catch (Exception e) {
+            throw new ExecutorException("查询数据库出现错误.", e);
+        }
     }
 
     @Override
@@ -59,12 +72,20 @@ public class DefaultSqlSession implements SqlSession {
 
     @Override
     public void commit() {
-
+        try {
+            executor.commit();
+        } catch (SQLException e) {
+            throw new ExecutorException("commit transaction fail.", e);
+        }
     }
 
     @Override
     public void rollback() {
-
+        try {
+            executor.rollback();
+        } catch (SQLException e) {
+            throw new ExecutorException("rollback transaction fail.", e);
+        }
     }
 
     @Override
@@ -73,11 +94,32 @@ public class DefaultSqlSession implements SqlSession {
     }
 
     @Override
-    public void close() throws IOException {
-
+    public void close() {
+        try {
+            executor.close();
+        } catch (SQLException e) {
+            throw new ExecutorException("close session fail.", e);
+        }
     }
 
     public Configuration getConfiguration() {
         return configuration;
+    }
+
+    private Object wrapCollection(Object parameter) {
+        if(parameter instanceof Collection) {
+            ParamMap map = new ParamMap();
+            map.put("collection", parameter);
+            if (parameter instanceof List) {
+                map.put("list", parameter);
+            }
+            return map;
+        } else if(parameter != null && parameter.getClass().isArray()) {
+            ParamMap map = new ParamMap();
+            map.put("array", parameter);
+            return map;
+        } else {
+            return parameter;
+        }
     }
 }
