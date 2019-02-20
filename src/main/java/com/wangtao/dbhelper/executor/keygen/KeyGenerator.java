@@ -1,4 +1,6 @@
-package com.wangtao.dbhelper.mapping;
+package com.wangtao.dbhelper.executor.keygen;
+
+import com.wangtao.dbhelper.mapping.MappedStatement;
 
 import java.sql.Statement;
 

@@ -1,8 +1,9 @@
-package com.wangtao.dbhelper.mapping;
+package com.wangtao.dbhelper.executor.keygen;
 
 import com.wangtao.dbhelper.core.Configuration;
 import com.wangtao.dbhelper.core.ParamMap;
 import com.wangtao.dbhelper.executor.ExecutorException;
+import com.wangtao.dbhelper.mapping.MappedStatement;
 import com.wangtao.dbhelper.reflection.MetaObject;
 import com.wangtao.dbhelper.type.JdbcType;
 import com.wangtao.dbhelper.type.TypeHandler;

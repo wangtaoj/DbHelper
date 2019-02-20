@@ -1,6 +1,7 @@
 package com.wangtao.dbhelper.mapping;
 
 import com.wangtao.dbhelper.core.Configuration;
+import com.wangtao.dbhelper.executor.keygen.KeyGenerator;
 
 import java.util.Arrays;
 
