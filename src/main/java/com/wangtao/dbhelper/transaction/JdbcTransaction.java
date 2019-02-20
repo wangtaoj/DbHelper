@@ -37,8 +37,11 @@ public class JdbcTransaction implements Transaction {
 
     @Override
     public Connection getConnection() throws SQLException {
-        if (connection != null) {
+        if (connection == null) {
             connection = dataSource.getConnection();
+            if (logger.isDebugEnabled()) {
+                logger.debug("Opening JDBC Connection");
+            }
             if (isolationLevel != null)
                 connection.setTransactionIsolation(isolationLevel);
             connection.setAutoCommit(autoCommit);
@@ -51,7 +54,7 @@ public class JdbcTransaction implements Transaction {
         if (connection != null && !connection.getAutoCommit()) {
             connection.commit();
             if (logger.isDebugEnabled()) {
-                logger.debug("commit JDBC Connection[" + connection.hashCode() + "].");
+                logger.debug("Commit JDBC Connection[" + connection.hashCode() + "].");
             }
         }
     }
@@ -61,7 +64,7 @@ public class JdbcTransaction implements Transaction {
         if (connection != null && !connection.getAutoCommit()) {
             connection.rollback();
             if (logger.isDebugEnabled()) {
-                logger.debug("rollback JDBC Connection[" + connection.hashCode() + "].");
+                logger.debug("Rollback JDBC Connection[" + connection.hashCode() + "].");
             }
         }
     }
@@ -82,7 +85,7 @@ public class JdbcTransaction implements Transaction {
             if (connection.getAutoCommit() != autoCommit) {
                 connection.setAutoCommit(autoCommit);
                 if (logger.isDebugEnabled()) {
-                    logger.debug("setting value of autocommit to" + autoCommit +
+                    logger.debug("Setting value of autocommit to" + autoCommit +
                             " on connection[" + connection.hashCode() + "].");
                 }
             }
@@ -96,7 +99,7 @@ public class JdbcTransaction implements Transaction {
             if (!connection.getAutoCommit()) {
                 connection.setAutoCommit(true);
                 if(logger.isDebugEnabled()) {
-                    logger.debug("reset value of autocommit to true on connection[" + connection.hashCode() + "].");
+                    logger.debug("Reset value of autocommit to true on connection[" + connection.hashCode() + "].");
                 }
             }
         } catch (SQLException e) {

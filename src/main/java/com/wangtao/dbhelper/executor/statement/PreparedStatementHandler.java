@@ -22,14 +22,14 @@ public class PreparedStatementHandler extends BaseStatementHandler {
     @Override
     public <E> List<E> query(Statement statement) throws SQLException {
         PreparedStatement ps = (PreparedStatement) statement;
-        ps.executeQuery();
+        ps.execute();
         return resultSetHandler.handleResultSet(ps);
     }
 
     @Override
     public int update(Statement statement) throws SQLException {
         PreparedStatement ps = (PreparedStatement) statement;
-        ps.executeUpdate();
+        ps.execute();
         int rows = ps.getUpdateCount();
         KeyGenerator keyGenerator = ms.getKeyGenerator();
         keyGenerator.processAfter(ms, statement, boundSql.getParameter());

@@ -35,7 +35,7 @@ public class DefaultSqlSessionFactory implements SqlSessionFactory {
 
     @Override
     public SqlSession openSqlSession(boolean autoCommit, TransactionIsolationLevel level) {
-        return null;
+        return openSqlSessionFromDataSource(autoCommit, level);
     }
 
     private SqlSession openSqlSessionFromDataSource(boolean autoCommit, TransactionIsolationLevel level) {

@@ -60,12 +60,16 @@ public class DefaultResultSetHandler implements ResultSetHandler {
         }
         List<Object> results = new ArrayList<>();
         if (rs != null) {
-            // 返回false, 说明要查找的数据行已超过resultset的结果行数, 返回空集合.
-            if (skipRows(rs, rowBounds)) {
-                while (rs.next() && results.size() < rowBounds.getLimit()) {
-                    Object result = handleRowValue(new ResultSetWrapper(rs), resultMap);
-                    results.add(result);
+            try {
+                // 返回false, 说明要查找的数据行已超过resultset的结果行数, 返回空集合.
+                if (skipRows(rs, rowBounds)) {
+                    while (rs.next() && results.size() < rowBounds.getLimit()) {
+                        Object result = handleRowValue(new ResultSetWrapper(rs), resultMap);
+                        results.add(result);
+                    }
                 }
+            } finally {
+                closeResultSet(rs);
             }
         }
         return (List<E>) results;
@@ -74,19 +78,15 @@ public class DefaultResultSetHandler implements ResultSetHandler {
     /**
      * 处理单行数据.
      */
-    public Object handleRowValue(ResultSetWrapper rsw, ResultMap resultMap) throws SQLException {
+    public Object handleRowValue(ResultSetWrapper rsw, ResultMap resultMap) {
         Object result;
         boolean foundValue = false;
-        try {
-            Class<?> resultType = resultMap.getType();
-            result = createResultObject(resultMap, rsw);
-            if (result != null && !hasTypeHandlerForResultObject(resultType, rsw)) {
-                MetaObject metaObject = MetaObject.forObject(result);
-                foundValue = applyAutoMappingProperty(rsw, resultMap, metaObject);
-                foundValue = applyMappedProperty(resultMap, metaObject, rsw) || foundValue;
-            }
-        } finally {
-            closeResultSet(rsw.getResultSet());
+        Class<?> resultType = resultMap.getType();
+        result = createResultObject(resultMap, rsw);
+        if (result != null && !hasTypeHandlerForResultObject(resultType, rsw)) {
+            MetaObject metaObject = MetaObject.forObject(result);
+            foundValue = applyAutoMappingProperty(rsw, resultMap, metaObject);
+            foundValue = applyMappedProperty(resultMap, metaObject, rsw) || foundValue;
         }
         return foundValue ? result : null;
     }
@@ -162,13 +162,15 @@ public class DefaultResultSetHandler implements ResultSetHandler {
      * @return 返回第一个结果集(ResultSet)对象
      */
     private ResultSet getFirstResultSet(Statement statement) throws SQLException {
-        while (true) {
+        ResultSet rs = statement.getResultSet();
+        while (rs == null) {
             if (statement.getMoreResults()) {
-                return statement.getResultSet();
+                rs = statement.getResultSet();
             } else if (statement.getUpdateCount() == -1) {
-                return null;
+                break;
             }
         }
+        return rs;
     }
 
     /**

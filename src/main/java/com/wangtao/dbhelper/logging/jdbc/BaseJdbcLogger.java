@@ -81,6 +81,6 @@ public abstract class BaseJdbcLogger {
         }
         if(sb.length() == 0)
             return sb.toString();
-        return sb.toString().substring(0, sb.length() - 1);
+        return sb.toString().substring(0, sb.length() - 2);
     }
 }

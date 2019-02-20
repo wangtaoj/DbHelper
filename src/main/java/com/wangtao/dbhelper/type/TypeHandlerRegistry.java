@@ -33,7 +33,7 @@ public class TypeHandlerRegistry {
 
         register(Integer.class, new IntegerTypeHandler());
         register(int.class, new IntegerTypeHandler());
-        register(JdbcType.INTEGET, new IntegerTypeHandler());
+        register(JdbcType.INTEGER, new IntegerTypeHandler());
 
         register(Long.class, new LongTypeHandler());
         register(long.class, new LongTypeHandler());

@@ -75,4 +75,9 @@ public interface SqlSession extends Closeable {
      * @return 返回Mapper接口实例
      */
     <T> T getMapper(Class<T> type);
+
+    /**
+     * 关闭会话.
+     */
+    void close();
 }

@@ -12,6 +12,7 @@ import com.wangtao.dbhelper.scripting.xmltags.SqlNode;
 import com.wangtao.dbhelper.scripting.xmltags.StaticTextSqlNode;
 import com.wangtao.dbhelper.scripting.xmltags.TextSqlNode;
 import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -43,8 +44,9 @@ public class XMLScriptBuilder extends BaseBuilder {
     // 将SQL语句拆成一个个自定义节点.
     private MixedSqlNode parseDynamicTag(XNode node) {
         List<SqlNode> contents = new ArrayList<>();
-        List<XNode> children = node.getChildren();
-        for (XNode child : children) {
+        NodeList children = node.getNode().getChildNodes();
+        for (int i = 0; i < children.getLength(); i++) {
+            XNode child = node.newXNode(children.item(i));
             short nodeType = child.getNode().getNodeType();
             if (nodeType == Node.TEXT_NODE || nodeType == Node.CDATA_SECTION_NODE) {
                 String body = child.getStringBody("");

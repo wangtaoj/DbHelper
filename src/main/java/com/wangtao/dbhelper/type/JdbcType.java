@@ -9,7 +9,7 @@ import java.util.Map;
  */
 public enum JdbcType {
 
-    INTEGET(Types.INTEGER),
+    INTEGER(Types.INTEGER),
     BIGINT(Types.BIGINT),
     BOOLEAN(Types.BOOLEAN),
     VARCHAR(Types.VARCHAR),
