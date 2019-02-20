@@ -14,6 +14,8 @@ public interface Executor {
 
     <E> List<E> query(MappedStatement ms, Object parameter, RowBounds rowBounds) throws SQLException;
 
+    int update(MappedStatement ms, Object parameter) throws SQLException;
+
     void commit() throws SQLException;
 
     void rollback() throws SQLException;

@@ -13,6 +13,8 @@ public interface StatementHandler {
 
     <E> List<E> query(Statement statement) throws SQLException;
 
+    int update(Statement statement) throws SQLException;
+
     Statement prepare(Connection connection) throws SQLException;
 
     void parameterize(Statement statement) throws SQLException;

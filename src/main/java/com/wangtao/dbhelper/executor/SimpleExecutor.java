@@ -37,8 +37,20 @@ public class SimpleExecutor implements Executor {
             throw new ExecutorException("executor is closed!");
         }
         StatementHandler statementHandler = configuration.newStatementHandler(ms, rowBounds, parameter);
-        Statement statement = prepareStatement(statementHandler, ms);
-        return statementHandler.query(statement);
+        try (Statement statement = prepareStatement(statementHandler, ms)) {
+            return statementHandler.query(statement);
+        }
+    }
+
+    @Override
+    public int update(MappedStatement ms, Object parameter) throws SQLException {
+        if (closed) {
+            throw new ExecutorException("executor is closed!");
+        }
+        StatementHandler statementHandler = configuration.newStatementHandler(ms, null, parameter);
+        try (Statement statement = prepareStatement(statementHandler, ms)) {
+            return statementHandler.update(statement);
+        }
     }
 
     private Statement prepareStatement(StatementHandler handler, MappedStatement ms) {

@@ -2,6 +2,7 @@ package com.wangtao.dbhelper.executor.statement;
 
 import com.wangtao.dbhelper.core.RowBounds;
 import com.wangtao.dbhelper.executor.keygen.JDBCKeyGenerator;
+import com.wangtao.dbhelper.executor.keygen.KeyGenerator;
 import com.wangtao.dbhelper.mapping.MappedStatement;
 import com.wangtao.dbhelper.mapping.ResultSetType;
 
@@ -23,6 +24,16 @@ public class PreparedStatementHandler extends BaseStatementHandler {
         PreparedStatement ps = (PreparedStatement) statement;
         ps.executeQuery();
         return resultSetHandler.handleResultSet(ps);
+    }
+
+    @Override
+    public int update(Statement statement) throws SQLException {
+        PreparedStatement ps = (PreparedStatement) statement;
+        ps.executeUpdate();
+        int rows = ps.getUpdateCount();
+        KeyGenerator keyGenerator = ms.getKeyGenerator();
+        keyGenerator.processAfter(ms, statement, boundSql.getParameter());
+        return rows;
     }
 
     @Override
