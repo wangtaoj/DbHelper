@@ -2,6 +2,8 @@ package com.wangtao.dbhelper.mapping;
 
 import com.wangtao.dbhelper.core.Configuration;
 import com.wangtao.dbhelper.executor.keygen.KeyGenerator;
+import com.wangtao.dbhelper.logging.Log;
+import com.wangtao.dbhelper.logging.LogFactory;
 
 import java.util.Arrays;
 
@@ -34,6 +36,8 @@ public class MappedStatement {
     private String[] keyColumns;
 
     private KeyGenerator keyGenerator;
+
+    private Log statementLog;
 
     MappedStatement(Configuration configuration) {
         this.configuration = configuration;
@@ -87,6 +91,10 @@ public class MappedStatement {
         return keyGenerator;
     }
 
+    public Log getStatementLog() {
+        return statementLog;
+    }
+
     public static class Builder {
         private MappedStatement mappedStatement;
 
@@ -94,6 +102,7 @@ public class MappedStatement {
             this.mappedStatement = new MappedStatement(configuration);
             mappedStatement.id = id;
             mappedStatement.sqlSource = sqlSource;
+            mappedStatement.statementLog = LogFactory.getLogger(id);
         }
 
         public Builder resultMap(ResultMap resultMap) {

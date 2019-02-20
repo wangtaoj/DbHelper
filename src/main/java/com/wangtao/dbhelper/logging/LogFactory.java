@@ -9,6 +9,10 @@ import com.wangtao.dbhelper.logging.slf4j.Slf4jImpl;
 public final class LogFactory {
 
     public static Log getLogger(Class<?> clazz) {
-        return new Slf4jImpl(clazz.getName());
+        return getLogger(clazz.getName());
+    }
+
+    public static Log getLogger(String name) {
+        return new Slf4jImpl(name);
     }
 }
