@@ -36,12 +36,34 @@ public interface SqlSession extends Closeable {
     <T> List<T> selectList(String statement, Object parameter, RowBounds rowBounds);
 
     /**
-     * 执行更新语句(insert, update, select)
+     * 执行更新语句(update)
      * @param statement (namespace + id)
-     * @param paramter 参数
+     * @param parameter 参数
      * @return 返回受影响的行数
      */
-    int update(String statement, Object paramter);
+    int update(String statement, Object parameter);
+
+    int update(String statement);
+
+    /**
+     * 执行插入语句(insert)
+     * @param statement (namespace + id)
+     * @param parameter 参数
+     * @return 返回受影响的行数
+     */
+    int insert(String statement, Object parameter);
+
+    int insert(String statement);
+
+    /**
+     * 执行删除语句(delete)
+     * @param statement (namespace + id)
+     * @param parameter 参数
+     * @return 返回受影响的行数
+     */
+    int delete(String statement, Object parameter);
+
+    int delete(String statement);
 
     void commit();
 

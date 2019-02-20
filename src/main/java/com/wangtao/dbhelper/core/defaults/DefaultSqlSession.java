@@ -61,13 +61,43 @@ public class DefaultSqlSession implements SqlSession {
         try {
             return executor.query(ms, wrapCollection(parameter), rowBounds);
         } catch (Exception e) {
-            throw new ExecutorException("查询数据库出现错误.", e);
+            throw new ExecutorException("Error query database.", e);
         }
     }
 
     @Override
-    public int update(String statement, Object paramter) {
-        return 0;
+    public int update(String statement, Object parameter) {
+        MappedStatement ms = configuration.getMappedStatement(statement);
+        try {
+            return executor.update(ms, wrapCollection(parameter));
+        } catch (Exception e) {
+            throw new ExecutorException("Error update database.", e);
+        }
+    }
+
+    @Override
+    public int update(String statement) {
+        return update(statement, null);
+    }
+
+    @Override
+    public int insert(String statement, Object parameter) {
+        return update(statement, parameter);
+    }
+
+    @Override
+    public int insert(String statement) {
+        return insert(statement, null);
+    }
+
+    @Override
+    public int delete(String statement, Object parameter) {
+        return update(statement, parameter);
+    }
+
+    @Override
+    public int delete(String statement) {
+        return delete(statement, null);
     }
 
     @Override
