@@ -1,7 +1,7 @@
 package com.wangtao.dbhelper.transaction;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import com.wangtao.dbhelper.logging.Log;
+import com.wangtao.dbhelper.logging.LogFactory;
 
 import javax.sql.DataSource;
 import java.sql.Connection;
@@ -13,7 +13,7 @@ import java.sql.SQLException;
  */
 public class JdbcTransaction implements Transaction {
 
-    private static Logger logger = LoggerFactory.getLogger(JdbcTransaction.class);
+    private static Log logger = LogFactory.getLogger(JdbcTransaction.class);
 
     /**
      * 是否自动提交
@@ -51,7 +51,7 @@ public class JdbcTransaction implements Transaction {
         if (connection != null && !connection.getAutoCommit()) {
             connection.commit();
             if (logger.isDebugEnabled()) {
-                logger.debug("commit JDBC Connection{}", connection.hashCode());
+                logger.debug("commit JDBC Connection[" + connection.hashCode() + "].");
             }
         }
     }
@@ -61,7 +61,7 @@ public class JdbcTransaction implements Transaction {
         if (connection != null && !connection.getAutoCommit()) {
             connection.rollback();
             if (logger.isDebugEnabled()) {
-                logger.debug("rollback JDBC Connection{}", connection.hashCode());
+                logger.debug("rollback JDBC Connection[" + connection.hashCode() + "].");
             }
         }
     }
@@ -72,7 +72,7 @@ public class JdbcTransaction implements Transaction {
             resetAutoCommit();
             connection.close();
             if (logger.isDebugEnabled()) {
-                logger.debug("Closing JDBC Connection{}", connection.hashCode());
+                logger.debug("Closing JDBC Connection[" + connection.hashCode() + "]");
             }
         }
     }

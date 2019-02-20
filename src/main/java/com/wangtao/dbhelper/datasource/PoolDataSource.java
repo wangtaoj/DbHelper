@@ -1,7 +1,7 @@
 package com.wangtao.dbhelper.datasource;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import com.wangtao.dbhelper.logging.Log;
+import com.wangtao.dbhelper.logging.LogFactory;
 
 import javax.sql.DataSource;
 import java.io.PrintWriter;
@@ -16,7 +16,7 @@ import java.util.Properties;
  */
 public class PoolDataSource implements DataSource {
 
-    private static Logger logger = LoggerFactory.getLogger(PoolDataSource.class);
+    private static Log logger = LogFactory.getLogger(PoolDataSource.class);
 
     private SimpleDataSource dataSource;
 
@@ -76,7 +76,7 @@ public class PoolDataSource implements DataSource {
     private PoolConnection wrapConnection(String username, String password) throws SQLException {
         Connection connection = dataSource.getConnection(username, password);
         if (logger.isDebugEnabled()) {
-            logger.debug("connection{} 被创建", connection.hashCode());
+            logger.debug("Opening connection[" + connection.hashCode() + "].");
         }
         return new PoolConnection(connection, this);
     }
@@ -93,7 +93,7 @@ public class PoolDataSource implements DataSource {
             throw new DataSourceException("初始化连接失败. 原因:" + e);
         }
         if (logger.isDebugEnabled()) {
-            logger.debug("已经初始化好{}个连接", initSize);
+            logger.debug("The connection pool have already initialize " + initSize + " connections.");
         }
     }
 
@@ -137,13 +137,14 @@ public class PoolDataSource implements DataSource {
             idleConnections.addLast(connection);
             activeSize--;
             if (logger.isDebugEnabled()) {
-                logger.debug("connection{}已被归还到连接池中", connection.getRealConnection().hashCode());
+                logger.debug("Connection[" + connection.getRealConnection().hashCode() +
+                        "] is returned the connection pool.");
             }
         } else {
             Connection realConection = connection.getRealConnection();
             realConection.close();
             if (logger.isDebugEnabled()) {
-                logger.debug("connection{}已经被释放", realConection.hashCode());
+                logger.debug("Connection[" + realConection.hashCode() + "] is closed.");
             }
         }
     }

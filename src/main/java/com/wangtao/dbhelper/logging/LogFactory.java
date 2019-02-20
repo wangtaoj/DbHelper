@@ -8,7 +8,7 @@ import com.wangtao.dbhelper.logging.slf4j.Slf4jImpl;
  */
 public final class LogFactory {
 
-    Log getLog(Class<?> clazz) {
+    public static Log getLogger(Class<?> clazz) {
         return new Slf4jImpl(clazz.getName());
     }
 }
