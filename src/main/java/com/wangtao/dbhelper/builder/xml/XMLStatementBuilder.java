@@ -4,6 +4,9 @@ import com.wangtao.dbhelper.builder.BaseBuilder;
 import com.wangtao.dbhelper.builder.BuilderException;
 import com.wangtao.dbhelper.builder.MapperBuilderAssistant;
 import com.wangtao.dbhelper.core.Configuration;
+import com.wangtao.dbhelper.executor.keygen.JDBCKeyGenerator;
+import com.wangtao.dbhelper.executor.keygen.KeyGenerator;
+import com.wangtao.dbhelper.executor.keygen.NoKeyGenerator;
 import com.wangtao.dbhelper.mapping.*;
 import com.wangtao.dbhelper.parser.XNode;
 
