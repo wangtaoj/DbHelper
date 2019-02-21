@@ -37,17 +37,20 @@ public class JDBCKeyGenerator implements KeyGenerator {
             return;
         }
         try (ResultSet rs = statement.getGeneratedKeys()) {
-            if (rs != null && rs.getMetaData().getColumnCount() < keyPropertys.length) {
+            ResultSetMetaData metaData = rs.getMetaData();
+            if (metaData.getColumnCount() >= keyPropertys.length) {
                 parameter = getSoleParameter(parameter, keyPropertys);
                 if (parameter != null) {
                     assignKeyToParameter(rs, ms, parameter);
                 }
+            } else {
+                throw new ExecutorException("The counts of the parimary key column must be greater than the counts of "
+                        + "key property. But the counts of the parimary key column is '" + metaData.getColumnCount()
+                        + "', the counts of key property is '" + keyPropertys.length + "'.");
             }
         } catch (SQLException e) {
             throw new ExecutorException("error get the generated key or set value to parameter.", e);
         }
-
-
     }
 
     /**
