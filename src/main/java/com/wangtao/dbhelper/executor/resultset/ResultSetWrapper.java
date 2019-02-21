@@ -41,7 +41,7 @@ public class ResultSetWrapper {
     private Map<String, List<String>> mappedColumnNamesMap = new HashMap<>();
 
     /**
-     * 未映射的列名(大写)
+     * 未映射的列名(元数据的列名, 大小写敏感)
      * key: resultMap的id
      **/
     private Map<String, List<String>> unMappedColumnNamesMap = new HashMap<>();
@@ -110,7 +110,7 @@ public class ResultSetWrapper {
             if(mappedColumnSet.contains(upperColumnName)) {
                 mappedColumnNames.add(upperColumnName);
             } else {
-                unMappedColumnNames.add(upperColumnName);
+                unMappedColumnNames.add(columnName);
             }
         }
         mappedColumnNamesMap.put(resultMap.getId(), mappedColumnNames);

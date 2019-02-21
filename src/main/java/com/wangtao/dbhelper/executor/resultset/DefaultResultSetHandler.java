@@ -215,7 +215,7 @@ public class DefaultResultSetHandler implements ResultSetHandler {
         MetaClass metaClass = MetaClass.forClass(resultType);
         if (hasTypeHandlerForResultObject(resultType, rsw)) {
             return createPrimitiveResultObject(resultMap, rsw);
-        } else if (metaClass.hasDefaultConstructor()) {
+        } else if (resultType.isInterface() || metaClass.hasDefaultConstructor()) {
             return objectFactory.create(resultType);
         }
         throw new ExecutorException("we don't know how to create an instance of " + resultType);
