@@ -80,15 +80,16 @@ public class DefaultResultSetHandler implements ResultSetHandler {
      */
     public Object handleRowValue(ResultSetWrapper rsw, ResultMap resultMap) {
         Object result;
-        boolean foundValue = false;
+        boolean foundValue;
         Class<?> resultType = resultMap.getType();
         result = createResultObject(resultMap, rsw);
         if (result != null && !hasTypeHandlerForResultObject(resultType, rsw)) {
             MetaObject metaObject = MetaObject.forObject(result);
             foundValue = applyAutoMappingProperty(rsw, resultMap, metaObject);
             foundValue = applyMappedProperty(resultMap, metaObject, rsw) || foundValue;
+            result = foundValue ? result : null;
         }
-        return foundValue ? result : null;
+        return result;
     }
 
     private boolean applyAutoMappingProperty(ResultSetWrapper rsw, ResultMap resultMap, MetaObject metaObject) {
