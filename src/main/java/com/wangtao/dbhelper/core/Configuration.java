@@ -60,14 +60,14 @@ public class Configuration {
     /**
      * 用于存放<resultMap>节点信息, key是namespace + "." + id
      */
-    protected Map<String, ResultMap> resultMaps = new StrictMap<>("ResultMap Collection");
+    protected Map<String, ResultMap> resultMaps = new StrictMap<>("Result Maps Collection");
 
     /**
      * 用于存放<sql>节点
      */
-    protected Map<String, XNode> sqlNodes = new StrictMap<>("sql元素集合");
+    protected Map<String, XNode> sqlNodes = new StrictMap<>("Sqls Collection");
 
-    protected Map<String, MappedStatement> mappedStatements = new StrictMap<>("增删改查标签集合");
+    protected Map<String, MappedStatement> mappedStatements = new StrictMap<>("Mapped Statements Collection");
 
     /**
      * 添加解析过的Mapper文件资源
