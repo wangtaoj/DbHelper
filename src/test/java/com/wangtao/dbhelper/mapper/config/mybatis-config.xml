@@ -35,7 +35,8 @@
 	</environments>
 	
 	<mappers>
-		<mapper resource="com/wangtao/dbhelper/builder/UserMapper.xml" />
+		<mapper resource="com/wangtao/dbhelper/mapper/config/UserMapper.xml" />
+		<mapper resource="com/wangtao/dbhelper/mapper/config/AddressMapper.xml" />
 	</mappers>
 	
 </configuration>

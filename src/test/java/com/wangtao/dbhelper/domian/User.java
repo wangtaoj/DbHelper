@@ -1,5 +1,6 @@
 package com.wangtao.dbhelper.domian;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 public class User {
@@ -13,7 +14,7 @@ public class User {
 
     private Integer gender;
 
-    private String birthday;
+    private LocalDate birthday;
 
     private LocalDateTime updateTime;
 
@@ -57,11 +58,11 @@ public class User {
         this.gender = gender;
     }
 
-    public String getBirthday() {
+    public LocalDate getBirthday() {
         return this.birthday;
     }
 
-    public void setBirthday(String birthday) {
+    public void setBirthday(LocalDate birthday) {
         this.birthday = birthday;
     }
 
@@ -73,7 +74,6 @@ public class User {
         this.updateTime = updateTime;
     }
 
-
     @Override
     public String toString() {
         return "User{" +
@@ -82,6 +82,8 @@ public class User {
                 ", password='" + password + '\'' +
                 ", age=" + age +
                 ", gender=" + gender +
+                ", birthday='" + birthday + '\'' +
+                ", updateTime=" + updateTime +
                 '}';
     }
 }
