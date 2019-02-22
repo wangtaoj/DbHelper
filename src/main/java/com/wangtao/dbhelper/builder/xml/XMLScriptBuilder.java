@@ -102,7 +102,7 @@ public class XMLScriptBuilder extends BaseBuilder {
             MixedSqlNode mixedSqlNode = parseDynamicTag(dynamicNode);
             String prefix = dynamicNode.getStringAttribute("prefix");
             String suffix = dynamicNode.getStringAttribute("suffix");
-            String prefixOverrides= dynamicNode.getStringAttribute("prefixOverrides");
+            String prefixOverrides = dynamicNode.getStringAttribute("prefixOverrides");
             String suffixOverrides = dynamicNode.getStringAttribute("suffixOverrides");
             TrimSqlNode sqlNode = new TrimSqlNode(configuration, mixedSqlNode, prefix, suffix,
                     prefixOverrides, suffixOverrides);
@@ -141,21 +141,45 @@ public class XMLScriptBuilder extends BaseBuilder {
         }
     }
 
-    private static class ChooseHandler implements NodeHandler {
+    private class ChooseHandler implements NodeHandler {
         @Override
         public void handleNode(XNode dynamicNode, List<SqlNode> contents) {
+            List<SqlNode> whenSqlNodes = new ArrayList<>();
+            List<SqlNode> defaultSqlNodes = new ArrayList<>();
+            List<XNode> children = dynamicNode.getChildren();
+            for (XNode child : children) {
+                String nodeName = child.getName();
+                NodeHandler nodeHandler = nodeHandlerMap.get(nodeName);
+                if (nodeHandler instanceof IfHandler) {
+                    nodeHandler.handleNode(child, whenSqlNodes);
+                } else if (nodeHandler instanceof OtherwiseHandler) {
+                    nodeHandler.handleNode(child, defaultSqlNodes);
+                }
+            }
+            SqlNode defaultSqlNde = getDefaultSqlNode(defaultSqlNodes);
+            ChooseSqlNode chooseSqlNode = new ChooseSqlNode(whenSqlNodes, defaultSqlNde);
+            contents.add(chooseSqlNode);
+        }
 
+        private SqlNode getDefaultSqlNode(List<SqlNode> defaultSqlNodes) {
+            if (defaultSqlNodes.size() == 1) {
+                return defaultSqlNodes.get(0);
+            } else if (defaultSqlNodes.size() >= 2) {
+                throw new BuilderException("Too many otherwise element in choose statement.");
+            }
+            return null;
         }
     }
 
-    private static class OtherwiseHandler implements NodeHandler {
+    private class OtherwiseHandler implements NodeHandler {
         @Override
         public void handleNode(XNode dynamicNode, List<SqlNode> contents) {
-
+            MixedSqlNode mixedSqlNode = parseDynamicTag(dynamicNode);
+            contents.add(mixedSqlNode);
         }
     }
 
-    private static class ForeachHandler implements NodeHandler {
+    private class ForeachHandler implements NodeHandler {
         @Override
         public void handleNode(XNode dynamicNode, List<SqlNode> contents) {
 

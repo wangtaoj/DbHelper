@@ -124,6 +124,27 @@ public class DynamicSqlSourceTest {
         Assert.assertEquals("UPDATE user SET username = ?, password = ?, update_time = now() WHERE id = ?", sql);
     }
 
+    @Test
+    public void chooseElement() {
+        XNode context = root.evalNode("select[@id = 'findByChoose']");
+        SqlSource sqlSource = new XMLScriptBuilder(configuration, context).createSqlSource();
+        User user = new User();
+        user.setGender(1);
+        BoundSql boundSql = sqlSource.getBoundSql(user);
+        String sql = removeWhitespace(boundSql.getSql());
+        Assert.assertEquals("SELECT * FROM user WHERE gender = '1'", sql);
+
+        user.setGender(2);
+        boundSql = sqlSource.getBoundSql(user);
+        sql = removeWhitespace(boundSql.getSql());
+        Assert.assertEquals("SELECT * FROM user WHERE gender = '2'", sql);
+
+        user.setGender(null);
+        boundSql = sqlSource.getBoundSql(user);
+        sql = removeWhitespace(boundSql.getSql());
+        Assert.assertEquals("SELECT * FROM user WHERE gender = '0'", sql);
+    }
+
     @AfterClass
     public static void afterClass() {
         if (reader != null) {

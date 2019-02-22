@@ -10,9 +10,10 @@ public class ChooseSqlNode implements SqlNode {
 
     private SqlNode defaultSqlNode;
 
-    private List<IfSqlNode> whenSqlNodes;
+    /** IfSqlNode **/
+    private List<SqlNode> whenSqlNodes;
 
-    public ChooseSqlNode(List<IfSqlNode> whenSqlNodes, SqlNode defaultSqlNode) {
+    public ChooseSqlNode(List<SqlNode> whenSqlNodes, SqlNode defaultSqlNode) {
         this.whenSqlNodes = whenSqlNodes;
         this.defaultSqlNode = defaultSqlNode;
     }
@@ -20,7 +21,7 @@ public class ChooseSqlNode implements SqlNode {
     @Override
     public boolean apply(DynamicContext context) {
         if (whenSqlNodes != null) {
-            for (IfSqlNode sqlNode : whenSqlNodes) {
+            for (SqlNode sqlNode : whenSqlNodes) {
                 if (sqlNode.apply(context)) {
                     return true;
                 }

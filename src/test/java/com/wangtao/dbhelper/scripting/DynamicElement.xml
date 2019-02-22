@@ -124,5 +124,22 @@
       </if>
     </where>
   </select>
+
+  <select id="findByChoose" resultMap="BaseResultMap">
+    SELECT * FROM user
+    <where>
+      <choose>
+        <when test="gender == 1">
+          AND gender = '1'
+        </when>
+        <when test="gender == 2">
+          AND gender = '2'
+        </when>
+        <otherwise>
+          AND gender = '0'
+        </otherwise>
+      </choose>
+    </where>
+  </select>
 </mapper>
 
