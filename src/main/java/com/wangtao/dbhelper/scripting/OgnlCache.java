@@ -1,4 +1,4 @@
-package com.wangtao.dbhelper.scripting.xmltags;
+package com.wangtao.dbhelper.scripting;
 
 import com.wangtao.dbhelper.builder.BuilderException;
 import ognl.MemberAccess;

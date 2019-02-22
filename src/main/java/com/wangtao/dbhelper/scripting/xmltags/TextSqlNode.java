@@ -2,6 +2,7 @@ package com.wangtao.dbhelper.scripting.xmltags;
 
 import com.wangtao.dbhelper.parser.GenericTokenParser;
 import com.wangtao.dbhelper.parser.TokenHandler;
+import com.wangtao.dbhelper.scripting.OgnlCache;
 import com.wangtao.dbhelper.type.SimpleTypeRegistry;
 
 /**
