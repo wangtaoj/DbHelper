@@ -18,9 +18,10 @@ public class IfSqlNode implements SqlNode {
     }
 
     @Override
-    public void apply(DynamicContext context) {
+    public boolean apply(DynamicContext context) {
         if (ExpressionEvaluator.evaluateBoolean(context.getBindings(), test)) {
-            sqlNode.apply(context);
+            return sqlNode.apply(context);
         }
+        return false;
     }
 }

@@ -15,11 +15,12 @@ public class MixedSqlNode implements SqlNode {
     }
 
     @Override
-    public void apply(DynamicContext context) {
+    public boolean apply(DynamicContext context) {
         if(contents != null) {
             for(SqlNode sqlNode : contents) {
                 sqlNode.apply(context);
             }
         }
+        return true;
     }
 }

@@ -53,11 +53,11 @@ public class TrimSqlNode implements SqlNode {
     }
 
     @Override
-    public void apply(DynamicContext context) {
+    public boolean apply(DynamicContext context) {
         // 临时上下文, 去掉SQL语句多余的部分, 添加prefix, suffix.
         FilterDynamicContext filterDynamicContext = new FilterDynamicContext(context);
         contents.apply(filterDynamicContext);
-        filterDynamicContext.applyAll();
+        return filterDynamicContext.applyAll();
     }
 
     private class FilterDynamicContext extends DynamicContext {
@@ -72,13 +72,15 @@ public class TrimSqlNode implements SqlNode {
             buffer = new StringBuilder();
         }
 
-        public void applyAll() {
+        public boolean applyAll() {
             StringBuilder buffer = new StringBuilder(getSql());
             if (buffer.length() > 0) {
                 applyPrefix(buffer);
                 applySuffix(buffer);
                 delegate.appendSql(buffer.toString());
+                return true;
             }
+            return false;
         }
 
         private void applyPrefix(StringBuilder buffer) {

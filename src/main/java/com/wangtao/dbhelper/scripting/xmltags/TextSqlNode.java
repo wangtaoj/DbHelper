@@ -31,11 +31,12 @@ public class TextSqlNode implements SqlNode {
     }
 
     @Override
-    public void apply(DynamicContext context) {
+    public boolean apply(DynamicContext context) {
         BindParameterTokenHandler tokenHandler = new BindParameterTokenHandler(context);
         GenericTokenParser parser = new GenericTokenParser("${", "}", tokenHandler);
         String sql = parser.parse(text);
         context.appendSql(sql);
+        return true;
     }
 
     private static class BindParameterTokenHandler implements TokenHandler {

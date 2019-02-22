@@ -11,6 +11,7 @@ public interface SqlNode {
      * 解析SQL时会一个个地根据类型将SQL语句片段解析成自定义的SQL节点.
      * 最终会将SQL语句全部追加到context中
      * @param context DynamicContext实例
+     * @return sql片段追加成功返回true, 否则返回false
      */
-    void apply(DynamicContext context);
+    boolean apply(DynamicContext context);
 }
