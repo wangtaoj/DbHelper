@@ -1,0 +1,128 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.wangtao.dao.UserMapper">
+
+  <insert id="insert">
+    INSERT INTO user (
+      id,
+      username,
+      password,
+      age,
+      gender,
+      birthday,
+      update_time
+    ) VALUES (
+      #{id,jdbcType=INTEGER},
+      #{username,jdbcType=VARCHAR},
+      #{password,jdbcType=VARCHAR},
+      #{age,jdbcType=INTEGER},
+      #{gender,jdbcType=INTEGER},
+      #{birthday,jdbcType=VARCHAR},
+      #{updateTime,jdbcType=TIMESTAMP}
+    )
+  </insert>
+
+  <insert id="insertSelective" useGeneratedKeys="true" keyProperty="id">
+    INSERT INTO user
+    <trim prefix="(" suffix=")" suffixOverrides=",">
+      <if test="id!=null">id,</if>
+      <if test="username!=null">username,</if>
+      <if test="password!=null">password,</if>
+      <if test="age!=null">age,</if>
+      <if test="gender!=null">gender,</if>
+      <if test="birthday!=null">birthday,</if>
+      <if test="updateTime!=null">update_time,</if>
+    </trim>
+    VALUES
+    <trim prefix="(" suffix=")" suffixOverrides=",">
+      <if test="id!=null">#{id,jdbcType=INTEGER},
+      </if>
+      <if test="username!=null">#{username,jdbcType=VARCHAR},
+      </if>
+      <if test="password!=null">#{password,jdbcType=VARCHAR},
+      </if>
+      <if test="age!=null">#{age,jdbcType=INTEGER},
+      </if>
+      <if test="gender!=null">#{gender,jdbcType=INTEGER},
+      </if>
+      <if test="birthday!=null">#{birthday,jdbcType=VARCHAR},
+      </if>
+      <if test="updateTime!=null">#{updateTime,jdbcType=TIMESTAMP},
+      </if>
+    </trim>
+  </insert>
+
+  <insert id="insertList">
+    INSERT INTO user (
+    id,
+    username,
+    password,
+    age,
+    gender,
+    birthday,
+    update_time
+    )VALUES
+    <foreach collection="users" item="user" index="index" separator=",">
+      (
+      #{id,jdbcType=INTEGER},
+      #{username,jdbcType=VARCHAR},
+      #{password,jdbcType=VARCHAR},
+      #{age,jdbcType=INTEGER},
+      #{gender,jdbcType=INTEGER},
+      #{birthday,jdbcType=VARCHAR},
+      #{updateTime,jdbcType=TIMESTAMP}
+      )
+    </foreach>
+  </insert>
+
+  <update id="updateByPrimaryKeySelective">
+    UPDATE user
+    SET
+    <if test="username != null">username = #{username,jdbcType=VARCHAR},</if>
+    <if test="password != null">password = #{password,jdbcType=VARCHAR},</if>
+    <if test="age != null">age = #{age,jdbcType=INTEGER},</if>
+    <if test="gender != null">gender = #{gender,jdbcType=INTEGER},</if>
+    <if test="birthday != null">birthday = #{birthday,jdbcType=VARCHAR},</if>
+    update_time = now()
+    WHERE id = #{id,jdbcType=INTEGER}
+  </update>
+
+  <update id="update">
+    UPDATE user
+    <set>
+      <if test="username != null">username = #{username,jdbcType=VARCHAR},</if>
+      <if test="password != null">password = #{password,jdbcType=VARCHAR},</if>
+      <if test="age != null">age = #{age,jdbcType=INTEGER},</if>
+      <if test="gender != null">gender = #{gender,jdbcType=INTEGER},</if>
+      <if test="birthday != null">birthday = #{birthday,jdbcType=VARCHAR},</if>
+      update_time = now()
+    </set>
+    WHERE id = #{id,jdbcType=INTEGER}
+  </update>
+
+  <select id="findByAgeIn" resultMap="BaseResultMap">
+    select
+    <include refid="Base_Column_List"/>
+    from user
+    where age in
+    <foreach item="item" index="index" collection="ageList"
+             open="(" separator="," close=")">
+      #{item,jdbcType=INTEGER}
+    </foreach>
+  </select>
+
+  <select id="findByCondition" resultMap="BaseResultMap">
+    SELECT
+    id, username, password, age, gender, birthday, update_time
+    FROM user
+    <where>
+      <if test="username != null">
+        AND username = #{username}
+      </if>
+      <if test="password != null">
+        AND password = #{password}
+      </if>
+    </where>
+  </select>
+</mapper>
+

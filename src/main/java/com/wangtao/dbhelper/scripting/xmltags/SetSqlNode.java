@@ -11,6 +11,6 @@ import java.util.Collections;
 public class SetSqlNode extends TrimSqlNode {
 
     public SetSqlNode(Configuration configuration, SqlNode contents) {
-        super(configuration, contents, "set", null, Collections.singletonList(","), null);
+        super(configuration, contents, "SET", null, Collections.singletonList(","), null);
     }
 }

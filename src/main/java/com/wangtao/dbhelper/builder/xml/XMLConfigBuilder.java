@@ -41,8 +41,8 @@ public class XMLConfigBuilder extends BaseBuilder {
     public XMLConfigBuilder(Reader reader, Properties variables) {
         super(new Configuration());
         this.parsed = false;
-        this.parser = new XpathParser.Builder().
-                reader(reader).validating(true)
+        this.parser = new XpathParser.Builder()
+                .reader(reader).validating(true)
                 .entityResolver(new DtdEntityResolver())
                 .variables(variables).build();
     }

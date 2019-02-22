@@ -71,6 +71,7 @@ public class XMLScriptBuilder extends BaseBuilder {
                 if (nodeHandler == null) {
                     throw new BuilderException("Unknown element<" + child.getName() + "> in SQL statement.");
                 }
+                isDynamic = true;
                 nodeHandler.handleNode(child, contents);
             }
         }

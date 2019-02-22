@@ -20,6 +20,10 @@ public class ExpressionEvaluator {
             return (Boolean) value;
         } else if (value instanceof Number) {
             return new BigDecimal(String.valueOf(value)).compareTo(BigDecimal.ZERO) != 0;
+        } else if (value instanceof String) {
+            return !((String) value).isEmpty();
+        } else if (value instanceof Character) {
+            return (Character) value != '0';
         } else {
             return value != null;
         }

@@ -4,6 +4,7 @@ import com.wangtao.dbhelper.core.Configuration;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 import java.util.StringTokenizer;
 
 /**
@@ -44,8 +45,8 @@ public class TrimSqlNode implements SqlNode {
         List<String> results = new ArrayList<>();
         if (overrides != null) {
             StringTokenizer tokenizer = new StringTokenizer(overrides, "|");
-            if (tokenizer.hasMoreTokens()) {
-                results.add(tokenizer.nextToken().trim());
+            while (tokenizer.hasMoreTokens()) {
+                results.add(tokenizer.nextToken().trim().toUpperCase(Locale.ENGLISH));
             }
         }
         return results;
@@ -56,19 +57,23 @@ public class TrimSqlNode implements SqlNode {
         // 临时上下文, 去掉SQL语句多余的部分, 添加prefix, suffix.
         FilterDynamicContext filterDynamicContext = new FilterDynamicContext(context);
         contents.apply(filterDynamicContext);
+        filterDynamicContext.applyAll();
     }
 
     private class FilterDynamicContext extends DynamicContext {
 
         private DynamicContext delegate;
 
+        private StringBuilder buffer;
+
         public FilterDynamicContext(DynamicContext delegate) {
             super(configuration, null);
             this.delegate = delegate;
+            buffer = new StringBuilder();
         }
 
         public void applyAll() {
-            StringBuilder buffer = new StringBuilder(getSql().trim());
+            StringBuilder buffer = new StringBuilder(getSql());
             if (buffer.length() > 0) {
                 applyPrefix(buffer);
                 applySuffix(buffer);
@@ -78,23 +83,26 @@ public class TrimSqlNode implements SqlNode {
 
         private void applyPrefix(StringBuilder buffer) {
             String sql = buffer.toString();
+            String upperSql = sql.toUpperCase(Locale.ENGLISH);
             if (prefixOverrides != null) {
                 for (String toRemove : prefixOverrides) {
-                    if (sql.startsWith(toRemove)) {
+                    if (upperSql.startsWith(toRemove)) {
                         buffer.delete(0, toRemove.length());
                     }
                 }
             }
             if (prefix != null) {
+                buffer.insert(0, " ");
                 buffer.insert(0, prefix);
             }
         }
 
         private void applySuffix(StringBuilder buffer) {
             String sql = buffer.toString();
+            String upperSql = sql.toUpperCase(Locale.ENGLISH);
             if (suffixOverrides != null) {
                 for (String toRemove : suffixOverrides) {
-                    if (sql.endsWith(toRemove)) {
+                    if (upperSql.endsWith(toRemove)) {
                         int end = buffer.length();
                         int start = end - toRemove.length();
                         buffer.delete(start, end);
@@ -102,23 +110,25 @@ public class TrimSqlNode implements SqlNode {
                 }
             }
             if (suffix != null) {
+                buffer.append(" ");
                 buffer.append(suffix);
             }
         }
 
         @Override
         public void appendSql(String sql) {
-            super.appendSql(sql);
+            buffer.append(sql);
+            buffer.append(" ");
         }
 
         @Override
         public String getSql() {
-            return super.getSql();
+            return buffer.toString().trim();
         }
 
         @Override
         public ContextMap getBindings() {
-            return super.getBindings();
+            return delegate.getBindings();
         }
     }
 }
