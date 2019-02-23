@@ -182,8 +182,16 @@ public class XMLScriptBuilder extends BaseBuilder {
     private class ForeachHandler implements NodeHandler {
         @Override
         public void handleNode(XNode dynamicNode, List<SqlNode> contents) {
-
+            MixedSqlNode mixedSqlNode = parseDynamicTag(dynamicNode);
+            String collection = dynamicNode.getStringAttribute("collection");
+            String item = dynamicNode.getStringAttribute("item");
+            String index = dynamicNode.getStringAttribute("index");
+            String open = dynamicNode.getStringAttribute("open");
+            String close = dynamicNode.getStringAttribute("close");
+            String separator = dynamicNode.getStringAttribute("separator");
+            ForeachSqlNode foreachSqlNode = new ForeachSqlNode(configuration, mixedSqlNode, collection, item, index, open,
+                    close, separator);
+            contents.add(foreachSqlNode);
         }
     }
-
 }

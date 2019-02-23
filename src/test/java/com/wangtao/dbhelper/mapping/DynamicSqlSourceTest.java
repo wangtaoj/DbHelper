@@ -1,15 +1,14 @@
-package com.wangtao.dbhelper.scripting;
+package com.wangtao.dbhelper.mapping;
 
 import com.wangtao.dbhelper.builder.xml.XMLScriptBuilder;
 import com.wangtao.dbhelper.core.Configuration;
+import com.wangtao.dbhelper.core.ParamMap;
 import com.wangtao.dbhelper.core.Resources;
 import com.wangtao.dbhelper.domian.User;
-import com.wangtao.dbhelper.mapping.BoundSql;
-import com.wangtao.dbhelper.mapping.DynamicSqlSource;
-import com.wangtao.dbhelper.mapping.SqlSource;
 import com.wangtao.dbhelper.parser.DtdEntityResolver;
 import com.wangtao.dbhelper.parser.XNode;
 import com.wangtao.dbhelper.parser.XpathParser;
+import com.wangtao.dbhelper.scripting.xmltags.ForeachSqlNode;
 import org.junit.AfterClass;
 import org.junit.Assert;
 import org.junit.BeforeClass;
@@ -17,7 +16,13 @@ import org.junit.Test;
 
 import java.io.IOException;
 import java.io.Reader;
+import java.util.Arrays;
+import java.util.List;
 import java.util.StringTokenizer;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotEquals;
+import static org.junit.Assert.assertTrue;
 
 /**
  * @author wangtao
@@ -34,7 +39,7 @@ public class DynamicSqlSourceTest {
     @BeforeClass
     public static void beforeClass() {
         try {
-            reader = Resources.getResourceAsReader("com/wangtao/dbhelper/scripting/DynamicElement.xml");
+            reader = Resources.getResourceAsReader("com/wangtao/dbhelper/mapping/DynamicElement.xml");
             XpathParser parser = new XpathParser.Builder()
                     .reader(reader).validating(true)
                     .entityResolver(new DtdEntityResolver())
@@ -52,7 +57,7 @@ public class DynamicSqlSourceTest {
         while (tokenizer.hasMoreTokens()) {
             buffer.append(tokenizer.nextToken()).append(" ");
         }
-        if(buffer.length() == 0) {
+        if (buffer.length() == 0) {
             return buffer.toString();
         }
         return buffer.delete(buffer.length() - 1, buffer.length()).toString();
@@ -69,8 +74,8 @@ public class DynamicSqlSourceTest {
         BoundSql boundSql = sqlSource.getBoundSql(user);
         String sql = boundSql.getSql();
         sql = removeWhitespace(sql);
-        Assert.assertNotEquals(0, sql.length());
-        Assert.assertEquals("UPDATE user SET username = ?, password = ?, update_time = now() WHERE id = ?", sql);
+        assertNotEquals(0, sql.length());
+        assertEquals("UPDATE user SET username = ?, password = ?, update_time = now() WHERE id = ?", sql);
     }
 
     @Test
@@ -85,8 +90,8 @@ public class DynamicSqlSourceTest {
         BoundSql boundSql = sqlSource.getBoundSql(user);
         String sql = boundSql.getSql();
         sql = removeWhitespace(sql);
-        Assert.assertNotEquals(0, sql.length());
-        Assert.assertEquals("INSERT INTO user ( id, username, password ) VALUES ( ?, ?, ? )", sql);
+        assertNotEquals(0, sql.length());
+        assertEquals("INSERT INTO user ( id, username, password ) VALUES ( ?, ?, ? )", sql);
     }
 
     @Test
@@ -100,13 +105,13 @@ public class DynamicSqlSourceTest {
         BoundSql boundSql = sqlSource.getBoundSql(user);
         String sql = boundSql.getSql();
         sql = removeWhitespace(sql);
-        Assert.assertNotEquals(0, sql.length());
-        Assert.assertEquals("SELECT id, username, password, age, gender, birthday, update_time FROM user WHERE"
+        assertNotEquals(0, sql.length());
+        assertEquals("SELECT id, username, password, age, gender, birthday, update_time FROM user WHERE"
                 + " username = ? AND password = ?", sql);
         user = new User();
         boundSql = sqlSource.getBoundSql(user);
         sql = removeWhitespace(boundSql.getSql());
-        Assert.assertEquals("SELECT id, username, password, age, gender, birthday, update_time FROM user", sql);
+        assertEquals("SELECT id, username, password, age, gender, birthday, update_time FROM user", sql);
     }
 
     @Test
@@ -120,8 +125,8 @@ public class DynamicSqlSourceTest {
         BoundSql boundSql = sqlSource.getBoundSql(user);
         String sql = boundSql.getSql();
         sql = removeWhitespace(sql);
-        Assert.assertNotEquals(0, sql.length());
-        Assert.assertEquals("UPDATE user SET username = ?, password = ?, update_time = now() WHERE id = ?", sql);
+        assertNotEquals(0, sql.length());
+        assertEquals("UPDATE user SET username = ?, password = ?, update_time = now() WHERE id = ?", sql);
     }
 
     @Test
@@ -132,17 +137,54 @@ public class DynamicSqlSourceTest {
         user.setGender(1);
         BoundSql boundSql = sqlSource.getBoundSql(user);
         String sql = removeWhitespace(boundSql.getSql());
-        Assert.assertEquals("SELECT * FROM user WHERE gender = '1'", sql);
+        assertEquals("SELECT * FROM user WHERE gender = '1'", sql);
 
         user.setGender(2);
         boundSql = sqlSource.getBoundSql(user);
         sql = removeWhitespace(boundSql.getSql());
-        Assert.assertEquals("SELECT * FROM user WHERE gender = '2'", sql);
+        assertEquals("SELECT * FROM user WHERE gender = '2'", sql);
 
         user.setGender(null);
         boundSql = sqlSource.getBoundSql(user);
         sql = removeWhitespace(boundSql.getSql());
-        Assert.assertEquals("SELECT * FROM user WHERE gender = '0'", sql);
+        assertEquals("SELECT * FROM user WHERE gender = '0'", sql);
+    }
+
+    @Test
+    public void foreachElement() {
+        XNode context = root.evalNode("select[@id = 'findByAgeIn']");
+        SqlSource sqlSource = new XMLScriptBuilder(configuration, context).createSqlSource();
+        int[] ages = {20, 22, 21};
+        ParamMap map = new ParamMap();
+        map.put("list", ages);
+        BoundSql boundSql = sqlSource.getBoundSql(map);
+        String sql = removeWhitespace(boundSql.getSql());
+        Assert.assertTrue(sqlSource instanceof DynamicSqlSource);
+        assertEquals("SELECT * FROM user WHERE age IN ( ? , ? , ? )", sql);
+        List<ParameterMapping> parameterMappings = boundSql.getParameterMappings();
+        assertEquals(3, parameterMappings.size());
+        for (int i = 0; i < parameterMappings.size(); i++) {
+            ParameterMapping parameterMapping = parameterMappings.get(i);
+            String property = ForeachSqlNode.ADDITIONAL_PARAMETER_PREFIX + "item_" + i;
+            assertEquals(property, parameterMapping.getProperty());
+            assertTrue(boundSql.hasAdditionalParameter(property));
+            assertEquals(ages[i], boundSql.getAdditionalParameter(property));
+        }
+
+        List<Integer> ageList = Arrays.asList(20, 22, 21);
+        map.put("list", ageList);
+        boundSql = sqlSource.getBoundSql(map);
+        sql = removeWhitespace(boundSql.getSql());
+        assertEquals("SELECT * FROM user WHERE age IN ( ? , ? , ? )", sql);
+        parameterMappings = boundSql.getParameterMappings();
+        assertEquals(3, parameterMappings.size());
+        for (int i = 0; i < parameterMappings.size(); i++) {
+            ParameterMapping parameterMapping = parameterMappings.get(i);
+            String property = ForeachSqlNode.ADDITIONAL_PARAMETER_PREFIX + "item_" + i;
+            assertEquals(property, parameterMapping.getProperty());
+            assertTrue(boundSql.hasAdditionalParameter(property));
+            assertEquals(ageList.get(i), boundSql.getAdditionalParameter(property));
+        }
     }
 
     @AfterClass

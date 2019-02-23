@@ -32,22 +32,26 @@ public class DynamicContext {
         bindings.put(PARAMETER, parameter);
     }
 
-    private StringBuffer sb = new StringBuffer();
+    private StringBuffer sqlBuilder = new StringBuffer();
+
+    public void bind(String name, Object value) {
+        bindings.put(name, value);
+    }
 
     public void appendSql(String sql) {
-        sb.append(sql);
-        sb.append(" ");
+        sqlBuilder.append(sql);
+        sqlBuilder.append(" ");
     }
 
     public String getSql() {
-        return sb.toString().trim();
+        return sqlBuilder.toString().trim();
     }
 
     public ContextMap getBindings() {
         return bindings;
     }
 
-    static class ContextMap extends HashMap<String, Object> {
+    public static class ContextMap extends HashMap<String, Object> {
 
         private static final long serialVersionUID = 6913043070411004656L;
 

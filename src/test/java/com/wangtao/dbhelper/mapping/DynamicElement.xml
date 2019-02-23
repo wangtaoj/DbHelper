@@ -101,11 +101,8 @@
   </update>
 
   <select id="findByAgeIn" resultMap="BaseResultMap">
-    select
-    <include refid="Base_Column_List"/>
-    from user
-    where age in
-    <foreach item="item" index="index" collection="ageList"
+    SELECT * FROM user WHERE age IN
+    <foreach item="item" index="index" collection="list"
              open="(" separator="," close=")">
       #{item,jdbcType=INTEGER}
     </foreach>
