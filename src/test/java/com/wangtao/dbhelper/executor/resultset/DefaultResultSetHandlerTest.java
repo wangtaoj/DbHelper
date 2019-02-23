@@ -90,7 +90,7 @@ public class DefaultResultSetHandlerTest {
     MappedStatement getMappedStatement() {
         Configuration configuration = new Configuration();
         configuration.setMapUnderscoreToCamelCase(true);
-        SqlSource sqlSource = new StaticSqlSource("select username, age from user", new ArrayList<>());
+        SqlSource sqlSource = new StaticSqlSource(configuration,"select username, age from user", new ArrayList<>());
         ResultMap resultMap = new ResultMap.Builder("BaseResultMap", User.class)
                 .resultMappings(new ArrayList<ResultMapping>(){
                     private static final long serialVersionUID = -1866939844247169205L;
@@ -111,7 +111,7 @@ public class DefaultResultSetHandlerTest {
     MappedStatement getMappedStatementByResultType() {
         Configuration configuration = new Configuration();
         configuration.setMapUnderscoreToCamelCase(true);
-        SqlSource sqlSource = new StaticSqlSource("select username, age from user", new ArrayList<>());
+        SqlSource sqlSource = new StaticSqlSource(configuration,"select username, age from user", new ArrayList<>());
         ResultMap resultMap = new ResultMap.Builder("com.wangtao.dao.UserMapper.findById-Inline", User.class)
                 .resultMappings(new ArrayList<>()).build();
         return new MappedStatement.Builder(configuration, "com.wangtao.dao.UserMapper.findById", sqlSource)
