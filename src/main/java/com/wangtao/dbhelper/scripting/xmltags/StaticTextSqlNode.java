@@ -18,7 +18,10 @@ public class StaticTextSqlNode implements SqlNode {
 
     @Override
     public boolean apply(DynamicContext context) {
-        context.appendSql(text);
-        return true;
+        if (text != null && text.trim().length() > 0) {
+            context.appendSql(text);
+            return true;
+        }
+        return false;
     }
 }

@@ -54,12 +54,22 @@ public class TrimSqlNode implements SqlNode {
 
     @Override
     public boolean apply(DynamicContext context) {
-        // 临时上下文, 去掉SQL语句多余的部分, 添加prefix, suffix.
+        // 将trim元素内的SQL全部添加到filterDynamicContext中.
         FilterDynamicContext filterDynamicContext = new FilterDynamicContext(context);
         contents.apply(filterDynamicContext);
-        return filterDynamicContext.applyAll();
+
+        // 处理prefix, suffix, prefixOverrides, suffixOverrides.
+        String sql = filterDynamicContext.handleSql();
+        if (sql.length() > 0) {
+            context.appendSql(sql);
+            return true;
+        }
+        return false;
     }
 
+    /**
+     * 临时上下文, 去掉SQL语句多余的部分, 添加prefix, suffix.
+     */
     private class FilterDynamicContext extends DynamicContext {
 
         private DynamicContext delegate;
@@ -72,48 +82,46 @@ public class TrimSqlNode implements SqlNode {
             buffer = new StringBuilder();
         }
 
-        public boolean applyAll() {
-            StringBuilder buffer = new StringBuilder(getSql());
-            if (buffer.length() > 0) {
-                applyPrefix(buffer);
-                applySuffix(buffer);
-                delegate.appendSql(buffer.toString());
-                return true;
+        public String handleSql() {
+            StringBuilder sqlBuilder = new StringBuilder(getSql());
+            if (sqlBuilder.length() > 0) {
+                applyPrefix(sqlBuilder);
+                applySuffix(sqlBuilder);
             }
-            return false;
+            return sqlBuilder.toString();
         }
 
-        private void applyPrefix(StringBuilder buffer) {
-            String sql = buffer.toString();
+        private void applyPrefix(StringBuilder sqlBuilder) {
+            String sql = sqlBuilder.toString();
             String upperSql = sql.toUpperCase(Locale.ENGLISH);
             if (prefixOverrides != null) {
                 for (String toRemove : prefixOverrides) {
                     if (upperSql.startsWith(toRemove)) {
-                        buffer.delete(0, toRemove.length());
+                        sqlBuilder.delete(0, toRemove.length());
                     }
                 }
             }
             if (prefix != null) {
-                buffer.insert(0, " ");
-                buffer.insert(0, prefix);
+                sqlBuilder.insert(0, " ");
+                sqlBuilder.insert(0, prefix);
             }
         }
 
-        private void applySuffix(StringBuilder buffer) {
-            String sql = buffer.toString();
+        private void applySuffix(StringBuilder sqlBuilder) {
+            String sql = sqlBuilder.toString();
             String upperSql = sql.toUpperCase(Locale.ENGLISH);
             if (suffixOverrides != null) {
                 for (String toRemove : suffixOverrides) {
                     if (upperSql.endsWith(toRemove)) {
-                        int end = buffer.length();
+                        int end = sqlBuilder.length();
                         int start = end - toRemove.length();
-                        buffer.delete(start, end);
+                        sqlBuilder.delete(start, end);
                     }
                 }
             }
             if (suffix != null) {
-                buffer.append(" ");
-                buffer.append(suffix);
+                sqlBuilder.append(" ");
+                sqlBuilder.append(suffix);
             }
         }
 
