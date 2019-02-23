@@ -4,6 +4,7 @@ package com.wangtao.dbhelper.parser;
  * @author wangtao
  * Created at 2019/1/17 13:56
  */
+@FunctionalInterface
 public interface TokenHandler {
 
     /**
