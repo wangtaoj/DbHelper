@@ -4,6 +4,7 @@ import org.junit.Test;
 
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -18,6 +19,9 @@ public class UserMapperTest {
 
     UserMapper userMapper = new UserMapper();
 
+    /**
+     * 简单参数测试, 返回实体对象
+     */
     @Test
     public void findById() {
         User user = userMapper.findById(1);
@@ -32,7 +36,7 @@ public class UserMapperTest {
     }
 
     /**
-     * 返回map对象
+     * 简单参数测试, 返回map对象
      */
     @Test
     public void findToMapById() {
@@ -62,6 +66,9 @@ public class UserMapperTest {
         assertEquals("2018-10-27 12:17:11", updateTime);
     }
 
+    /**
+     * POJO参数测试
+     */
     @Test
     public void findByEntity() {
         User entity = new User();
@@ -71,6 +78,9 @@ public class UserMapperTest {
         assertEquals(2, users.size());
     }
 
+    /**
+     * 参数为Map
+     */
     @Test
     public void findByMap() {
         Map<String, Object> map = new HashMap<>();
@@ -79,24 +89,36 @@ public class UserMapperTest {
         assertTrue(users.isEmpty());
     }
 
+    /**
+     * 返回单结果.
+     */
     @Test
     public void count() {
         int count = userMapper.count();
         assertEquals(12, count);
     }
 
+    /**
+     * 返回单结果.
+     */
     @Test
     public void findAgeById() {
         Integer age = userMapper.findAgeById(1);
         assertEquals(20, age.intValue());
     }
 
+    /**
+     * 返回单结果.
+     */
     @Test
     public void findBirthdayById() {
         LocalDate birthday = userMapper.findBirthdayById(1);
         assertEquals(LocalDate.of(1997, 5, 3), birthday);
     }
 
+    /**
+     * 插入并返回自增主键.
+     */
     @Test
     public void insertAndReturnKey() {
         User user = new User();
@@ -110,4 +132,39 @@ public class UserMapperTest {
         rows = userMapper.delete(user.getId());
         assertEquals(1, rows);
     }
+
+    /**
+     * 动态SQL(foreach)
+     */
+    @Test
+    public void findByAgeIn() {
+        List<Integer> ages = Arrays.asList(20, 21);
+        List<User> users = userMapper.findByAgeIn(ages);
+        assertNotNull(users);
+        assertEquals(3, users.size());
+    }
+
+    /**
+     * 动态SQL(where, if)
+     */
+    @Test
+    public void findByCondition() {
+        User user = new User();
+        List<User> users = userMapper.findByCondition(user);
+        assertNotNull(users);
+        assertEquals(12, users.size());
+        user.setUsername("wangtao");
+        user.setPassword("123456");
+        users = userMapper.findByCondition(user);
+        assertEquals(1, users.size());
+        user = users.get(0);
+        assertEquals(1, user.getId().intValue());
+        assertEquals("wangtao", user.getUsername());
+        assertEquals("123456", user.getPassword());
+        assertEquals(20, user.getAge().intValue());
+        assertEquals(LocalDate.of(1997, 5, 3), user.getBirthday());
+        String updateTime = user.getUpdateTime().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
+        assertEquals("2018-10-27 12:17:11", updateTime);
+    }
+
 }
