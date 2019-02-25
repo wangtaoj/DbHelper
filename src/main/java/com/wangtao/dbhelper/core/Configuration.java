@@ -59,7 +59,7 @@ public class Configuration {
      * 允许使用方法签名中的名称作为语句参数名称
      * 必须使用JDK8编译, 并且编译时加上-parameters参数
      */
-    protected boolean useActualParamName;
+    protected boolean useActualParamName = true;
 
     protected Environment environment;
 
