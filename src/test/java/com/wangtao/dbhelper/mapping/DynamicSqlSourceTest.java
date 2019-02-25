@@ -1,5 +1,4 @@
 package com.wangtao.dbhelper.mapping;
-
 import com.wangtao.dbhelper.builder.xml.XMLScriptBuilder;
 import com.wangtao.dbhelper.core.Configuration;
 import com.wangtao.dbhelper.core.ParamMap;
@@ -8,6 +7,7 @@ import com.wangtao.dbhelper.domian.User;
 import com.wangtao.dbhelper.parser.DtdEntityResolver;
 import com.wangtao.dbhelper.parser.XNode;
 import com.wangtao.dbhelper.parser.XpathParser;
+import com.wangtao.dbhelper.reflection.MetaObject;
 import com.wangtao.dbhelper.scripting.xmltags.ForeachSqlNode;
 import org.junit.AfterClass;
 import org.junit.Assert;
@@ -16,13 +16,13 @@ import org.junit.Test;
 
 import java.io.IOException;
 import java.io.Reader;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.Arrays;
 import java.util.List;
 import java.util.StringTokenizer;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotEquals;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.*;
 
 /**
  * @author wangtao
@@ -186,6 +186,52 @@ public class DynamicSqlSourceTest {
             assertEquals(ageList.get(i), boundSql.getAdditionalParameter(property));
         }
     }
+
+    @Test
+    public void foreachElementV2() {
+        XNode context = root.evalNode("insert[@id = 'insertList']");
+
+        // 设置参数
+        User user = new User();
+        user.setUsername("wangtao");
+        user.setPassword("123456");
+        user.setAge(20);
+        user.setGender(1);
+        LocalDate birthday = LocalDate.of(1997, 5, 3);
+        user.setBirthday(birthday);
+        LocalDateTime updateTime = LocalDateTime.of(2019, 2, 25, 11, 2, 20);
+        user.setUpdateTime(updateTime);
+        List<User> users = Arrays.asList(user, user);
+        ParamMap map = new ParamMap();
+        map.put("users", users);
+
+        String[] propertys = {"id", "username", "password", "age", "gender", "birthday", "updateTime"};
+
+        SqlSource sqlSource = new XMLScriptBuilder(configuration, context).createSqlSource();
+        BoundSql boundSql = sqlSource.getBoundSql(map);
+        String sql = removeWhitespace(boundSql.getSql());
+        Assert.assertTrue(sqlSource instanceof DynamicSqlSource);
+        assertEquals("INSERT INTO user ( id, username, password, age, gender, birthday, update_time ) " +
+                "VALUES ( ?, ?, ?, ?, ?, ?, ? ) , ( ?, ?, ?, ?, ?, ?, ? )", sql);
+        List<ParameterMapping> parameterMappings = boundSql.getParameterMappings();
+        assertEquals(14, parameterMappings.size());
+        for(int i = 0; i < 2; i ++) {
+            MetaObject metaObject = configuration.newMetaObject(users.get(i));
+            for (int j = 0; j < 7; j++) {
+                int k = i * 7 + j;
+                // 真实属性名
+                String propertyName = propertys[j];
+                // foreach处理后加序号的属性名
+                String property = (ForeachSqlNode.ADDITIONAL_PARAMETER_PREFIX + "user_" + i) + "." + propertyName;
+                ParameterMapping parameterMapping = parameterMappings.get(k);
+                assertEquals(property, parameterMapping.getProperty());
+                assertTrue(boundSql.hasAdditionalParameter(property));
+                assertEquals(metaObject.getValue(propertyName), boundSql.getAdditionalParameter(property));
+            }
+        }
+
+    }
+
 
     @AfterClass
     public static void afterClass() {

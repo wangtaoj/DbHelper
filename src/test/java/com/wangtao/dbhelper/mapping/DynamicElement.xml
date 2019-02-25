@@ -53,24 +53,19 @@
   </insert>
 
   <insert id="insertList">
-    INSERT INTO user (
-    id,
-    username,
-    password,
-    age,
-    gender,
-    birthday,
-    update_time
-    )VALUES
+    INSERT INTO user
+    (
+    id, username, password, age, gender, birthday, update_time
+    ) VALUES
     <foreach collection="users" item="user" index="index" separator=",">
       (
-      #{id,jdbcType=INTEGER},
-      #{username,jdbcType=VARCHAR},
-      #{password,jdbcType=VARCHAR},
-      #{age,jdbcType=INTEGER},
-      #{gender,jdbcType=INTEGER},
-      #{birthday,jdbcType=VARCHAR},
-      #{updateTime,jdbcType=TIMESTAMP}
+      #{user.id,jdbcType=INTEGER},
+      #{user.username,jdbcType=VARCHAR},
+      #{user.password,jdbcType=VARCHAR},
+      #{user.age,jdbcType=INTEGER},
+      #{user.gender,jdbcType=INTEGER},
+      #{user.birthday,jdbcType=VARCHAR},
+      #{user.updateTime,jdbcType=TIMESTAMP}
       )
     </foreach>
   </insert>

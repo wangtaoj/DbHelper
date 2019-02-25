@@ -131,8 +131,16 @@ public class ForeachSqlNode implements SqlNode {
         public void appendSql(String sql) {
             GenericTokenParser parser = new GenericTokenParser("#{", "}", expression -> {
                 if (!expression.isEmpty()) {
-                    expression = expression.replaceFirst("^\\s*" + item, appendOrderForKey(item, order));
-                    expression = expression.replaceFirst("^\\s*" + index, appendOrderForKey(index, order));
+                    /*
+                     * 正则表达式含义: 以item(前面可以有空格)字符串开头, item右侧第一个字符必须满足要么是空格, 逗号, 点或者没有字符.
+                     * 举例:
+                     * expression = item1  false
+                     * expression = item   true  -> item
+                     * expression = item.age  true  -> item(点不会包含进来)
+                     * expression = item,  true  -> item(逗号不会包含进来)
+                     */
+                    expression = expression.replaceFirst("^\\s*" + item + "(?=[\\s,.]?)", appendOrderForKey(item, order));
+                    expression = expression.replaceFirst("^\\s*" + index + "(?=[\\s,.]?)", appendOrderForKey(index, order));
                 }
                 return "#{" + expression + "}";
             });
