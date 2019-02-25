@@ -58,7 +58,7 @@ public class SqlSourceBuilder extends BaseBuilder {
                 if (Objects.equals("property", name)) {
                     // just ignore
                 } else if(Objects.equals("jdbcType", name)) {
-                    builder.jdbcType(resolveJdbc(value));
+                    builder.jdbcType(resolveJdbcType(value));
                 } else if(Objects.equals("typeHandler", name)) {
                     builder.typeHandler(resolveTypeHandler(value));
                 } else {

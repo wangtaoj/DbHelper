@@ -26,9 +26,9 @@ import java.util.*;
  */
 public class Configuration {
 
-    private TypeHandlerRegistry typeHandlerRegistry = new TypeHandlerRegistry();
+    protected TypeHandlerRegistry typeHandlerRegistry = new TypeHandlerRegistry();
 
-    private TypeAliasRegistry typeAliasRegistry = new TypeAliasRegistry();
+    protected TypeAliasRegistry typeAliasRegistry = new TypeAliasRegistry();
 
     /**
      * 配置文件中配置的属性值
@@ -40,12 +40,26 @@ public class Configuration {
      **/
     protected boolean mapUnderscoreToCamelCase;
 
+    /**
+     * 参数值未null时默认的JdbcType类型
+     */
     protected JdbcType jdbcTypeForNull = JdbcType.OTHER;
 
     /**
      * 从数据库拿到为null的值时是否调用setter方法, 这对于Map作为返回值时会影响是否调用put方法
      **/
     protected boolean callSettersOnNulls;
+
+    /**
+     * 当返回行的所有列都是空时，默认返回null。 当开启这个设置时，那么会返回一个空实例
+     */
+    protected boolean returnInstanceForEmptyRow;
+
+    /**
+     * 允许使用方法签名中的名称作为语句参数名称
+     * 必须使用JDK8编译, 并且编译时加上-parameters参数
+     */
+    protected boolean useActualParamName;
 
     protected Environment environment;
 
@@ -106,6 +120,10 @@ public class Configuration {
         return mappedStatements.get(statementId);
     }
 
+    public boolean hasMappedStatement(String statementId) {
+        return mappedStatements.containsKey(statementId);
+    }
+
     public MetaObject newMetaObject(Object object) {
         return MetaObject.forObject(object);
     }
@@ -158,6 +176,22 @@ public class Configuration {
 
     public void setCallSettersOnNulls(boolean callSettersOnNulls) {
         this.callSettersOnNulls = callSettersOnNulls;
+    }
+
+    public boolean isReturnInstanceForEmptyRow() {
+        return returnInstanceForEmptyRow;
+    }
+
+    public void setReturnInstanceForEmptyRow(boolean returnInstanceForEmptyRow) {
+        this.returnInstanceForEmptyRow = returnInstanceForEmptyRow;
+    }
+
+    public boolean isUseActualParamName() {
+        return useActualParamName;
+    }
+
+    public void setUseActualParamName(boolean useActualParamName) {
+        this.useActualParamName = useActualParamName;
     }
 
     public TypeHandlerRegistry getTypeHandlerRegistry() {

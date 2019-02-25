@@ -87,7 +87,7 @@ public class DefaultResultSetHandler implements ResultSetHandler {
             MetaObject metaObject = MetaObject.forObject(result);
             foundValue = applyAutoMappingProperty(rsw, resultMap, metaObject);
             foundValue = applyMappedProperty(resultMap, metaObject, rsw) || foundValue;
-            result = foundValue ? result : null;
+            result = foundValue || configuration.isReturnInstanceForEmptyRow() ? result : null;
         }
         return result;
     }

@@ -44,7 +44,7 @@ public abstract class BaseBuilder {
         return resolveAlias(clazz);
     }
 
-    protected JdbcType resolveJdbc(String name) {
+    protected JdbcType resolveJdbcType(String name) {
         if (name == null) {
             return null;
         }

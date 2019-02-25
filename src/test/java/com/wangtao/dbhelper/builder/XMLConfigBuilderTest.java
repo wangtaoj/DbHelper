@@ -35,6 +35,8 @@ public class XMLConfigBuilderTest {
             assertThat(configuration.getJdbcTypeForNull()).isEqualTo(JdbcType.OTHER);
             assertThat(configuration.isCallSettersOnNulls()).isFalse();
             assertThat(configuration.isMapUnderscoreToCamelCase()).isFalse();
+            assertThat(configuration.isReturnInstanceForEmptyRow()).isFalse();
+            assertThat(configuration.isUseActualParamName()).isTrue();
 
             assertThat(configuration.getVariables().size()).isEqualTo(4);
             assertThat(configuration.getVariables()).containsKeys("driver", "url", "username", "password");
@@ -54,9 +56,11 @@ public class XMLConfigBuilderTest {
             XMLConfigBuilder builder = new XMLConfigBuilder(reader);
             Configuration configuration = builder.parse();
             assertThat(configuration).isNotNull();
-            assertThat(configuration.getJdbcTypeForNull()).isEqualTo(JdbcType.OTHER);
+            assertThat(configuration.getJdbcTypeForNull()).isEqualTo(JdbcType.OBJECT);
             assertThat(configuration.isCallSettersOnNulls()).isTrue();
             assertThat(configuration.isMapUnderscoreToCamelCase()).isTrue();
+            assertThat(configuration.isReturnInstanceForEmptyRow()).isTrue();
+            assertThat(configuration.isUseActualParamName()).isFalse();
 
             assertThat(configuration.getVariables().size()).isEqualTo(4);
             assertThat(configuration.getVariables()).containsKeys("driver", "url", "username", "password");

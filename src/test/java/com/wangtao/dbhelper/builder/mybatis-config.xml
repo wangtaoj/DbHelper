@@ -15,6 +15,9 @@
 	<settings>
 		<setting name="mapUnderscoreToCamelCase" value="true"/>
 		<setting name="callSettersOnNulls" value="true" />
+		<setting name="jdbcTypeForNull" value="OBJECT" />
+		<setting name="returnInstanceForEmptyRow" value="true" />
+		<setting name="useActualParamName" value="false" />
 	</settings>
 
 	<typeAliases>

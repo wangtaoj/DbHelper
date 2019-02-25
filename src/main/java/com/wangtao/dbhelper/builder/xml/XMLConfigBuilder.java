@@ -95,6 +95,12 @@ public class XMLConfigBuilder extends BaseBuilder {
     private void settingsElement(Properties properties) {
         configuration.setMapUnderscoreToCamelCase(booleanOfValue(properties.getProperty("mapUnderscoreToCamelCase"), false));
         configuration.setCallSettersOnNulls(booleanOfValue(properties.getProperty("callSettersOnNulls"), false));
+        String jdbcTypeForNull = properties.getProperty("jdbcTypeForNull");
+        if (jdbcTypeForNull != null) {
+            configuration.setJdbcTypeForNull(resolveJdbcType(jdbcTypeForNull));
+        }
+        configuration.setReturnInstanceForEmptyRow(booleanOfValue(properties.getProperty("returnInstanceForEmptyRow"), false));
+        configuration.setUseActualParamName(booleanOfValue(properties.getProperty("useActualParamName"), true));
     }
 
     private void typeAliasesElement(XNode typeAliases) {
