@@ -80,4 +80,10 @@ public interface SqlSession extends Closeable {
      * 关闭会话.
      */
     void close();
+
+    /**
+     * 获取全局配置对象
+     * @return Configuration对象
+     */
+    Configuration getConfiguration();
 }
