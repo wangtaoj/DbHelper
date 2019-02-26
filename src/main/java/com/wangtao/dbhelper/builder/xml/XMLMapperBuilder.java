@@ -4,6 +4,7 @@ import com.wangtao.dbhelper.builder.BaseBuilder;
 import com.wangtao.dbhelper.builder.BuilderException;
 import com.wangtao.dbhelper.builder.MapperBuilderAssistant;
 import com.wangtao.dbhelper.core.Configuration;
+import com.wangtao.dbhelper.core.Resources;
 import com.wangtao.dbhelper.mapping.ResultMapping;
 import com.wangtao.dbhelper.parser.DtdEntityResolver;
 import com.wangtao.dbhelper.parser.XNode;
@@ -62,7 +63,6 @@ public class XMLMapperBuilder extends BaseBuilder {
         } catch (Exception e) {
             throw new BuilderException("错误的解析Mapper文件, 文件位置位于" + resource + ".", e);
         }
-
     }
 
     private void resultMapElements(List<XNode> resultMapNodes) {
@@ -113,7 +113,7 @@ public class XMLMapperBuilder extends BaseBuilder {
 
     private Class<?> resolveJavaType(String javaTypeString, String property, Class<?> resultType) {
         Class<?> javaType = resolveClass(javaTypeString);
-        if(javaType == null) {
+        if (javaType == null) {
             try {
                 MetaClass metaClass = MetaClass.forClass(resultType);
                 // resultType = map, 会报错.
@@ -145,5 +145,22 @@ public class XMLMapperBuilder extends BaseBuilder {
     private void buildStatementFromContext(XNode context) {
         XMLStatementBuilder statementParser = new XMLStatementBuilder(configuration, assistant, context);
         statementParser.parseStatementNode();
+    }
+
+    private void bindNamespace() {
+        String namespace = assistant.getCurrentNamespace();
+        if (namespace != null) {
+            Class<?> mapperInterface = null;
+            try {
+                mapperInterface = Resources.classForName(namespace);
+            } catch (ClassNotFoundException e) {
+                // just ignore
+            }
+            if (mapperInterface != null) {
+                if (!configuration.hasMapper(mapperInterface)) {
+                    configuration.addMapper(mapperInterface);
+                }
+            }
+        }
     }
 }

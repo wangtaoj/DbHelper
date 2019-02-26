@@ -56,4 +56,8 @@ public class MapperBuilderAssistant extends BaseBuilder {
     public String getResource() {
         return resource;
     }
+
+    public String getCurrentNamespace() {
+        return currentNamespace;
+    }
 }

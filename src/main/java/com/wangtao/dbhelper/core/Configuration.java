@@ -1,5 +1,6 @@
 package com.wangtao.dbhelper.core;
 
+import com.wangtao.dbhelper.binding.MapperRegistry;
 import com.wangtao.dbhelper.executor.parameter.DefaultParameterHandler;
 import com.wangtao.dbhelper.executor.parameter.ParameterHandler;
 import com.wangtao.dbhelper.executor.resultset.DefaultResultSetHandler;
@@ -29,6 +30,8 @@ public class Configuration {
     protected TypeHandlerRegistry typeHandlerRegistry = new TypeHandlerRegistry();
 
     protected TypeAliasRegistry typeAliasRegistry = new TypeAliasRegistry();
+
+    protected MapperRegistry mapperRegistry = new MapperRegistry();
 
     /**
      * 配置文件中配置的属性值
@@ -122,6 +125,18 @@ public class Configuration {
 
     public boolean hasMappedStatement(String statementId) {
         return mappedStatements.containsKey(statementId);
+    }
+
+    public boolean hasMapper(Class<?> mapperInterface) {
+        return mapperRegistry.hasMapper(mapperInterface);
+    }
+
+    public <T> T getMapper(Class<T> mapperInterface, SqlSession sqlSession) {
+        return mapperRegistry.getMapper(mapperInterface, sqlSession);
+    }
+
+    public <T> void addMapper(Class<T> mapperInterface) {
+        mapperRegistry.addMapper(mapperInterface);
     }
 
     public MetaObject newMetaObject(Object object) {

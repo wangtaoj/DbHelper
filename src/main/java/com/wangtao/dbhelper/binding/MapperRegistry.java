@@ -39,6 +39,5 @@ public class MapperRegistry {
         } else {
             throw new BindingException("The class '" + mapperInterface.getName() + "' is not a interface.");
         }
-
     }
 }

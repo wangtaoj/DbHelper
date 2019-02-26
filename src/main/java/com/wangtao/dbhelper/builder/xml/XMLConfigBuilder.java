@@ -186,7 +186,9 @@ public class XMLConfigBuilder extends BaseBuilder {
             List<XNode> mapperElements = context.getChildren();
             for (XNode mapperElement : mapperElements) {
                 String resource = mapperElement.getStringAttribute("resource");
-                new XMLMapperBuilder(configuration, Resources.getResourceAsReader(resource), resource).parse();
+                XMLMapperBuilder mapperBuilder = new XMLMapperBuilder(configuration,
+                        Resources.getResourceAsReader(resource), resource);
+                mapperBuilder.parse();
             }
         }
     }
