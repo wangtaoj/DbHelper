@@ -37,7 +37,7 @@ public class MapperRegistry {
             }
             mappers.put(mapperInterface, new MapperProxyFactory<>(mapperInterface));
         } else {
-            throw new BindingException("The class '" + mapperInterface.getName() + "' is not a interface.");
+            // just ignore.
         }
     }
 }

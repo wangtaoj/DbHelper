@@ -44,6 +44,7 @@ public class XMLMapperBuilder extends BaseBuilder {
         if (!configuration.isLoadedResource(resource)) {
             parseMapper(parser.evalNode("/mapper"));
             configuration.addLoadedResource(resource);
+            bindNamespace();
         }
     }
 

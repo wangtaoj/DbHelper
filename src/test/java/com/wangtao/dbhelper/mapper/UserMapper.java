@@ -16,7 +16,7 @@ public class UserMapper {
     public User findById(Integer id) {
         SqlSession sqlSession = Utils.getSqlSession();
         try {
-            User user = sqlSession.selectOne("com.wangtao.dbhelper.mapper.UserMapperr.findById", id);
+            User user = sqlSession.selectOne("com.wangtao.dbhelper.binding.UserMapper.findById", id);
             sqlSession.commit();
             return user;
         } catch (Exception e) {
@@ -31,7 +31,7 @@ public class UserMapper {
     public int count() {
         SqlSession sqlSession = Utils.getSqlSession();
         try {
-            int rows = sqlSession.selectOne("com.wangtao.dbhelper.mapper.UserMapperr.count");
+            int rows = sqlSession.selectOne("com.wangtao.dbhelper.binding.UserMapper.count");
             sqlSession.commit();
             return rows;
         } catch (Exception e) {
@@ -46,7 +46,7 @@ public class UserMapper {
     public Map<String, Object> findToMapById(Integer id) {
         SqlSession sqlSession = Utils.getSqlSession();
         try {
-            Map<String, Object> result = sqlSession.selectOne("com.wangtao.dbhelper.mapper.UserMapperr.findToMapById", id);
+            Map<String, Object> result = sqlSession.selectOne("com.wangtao.dbhelper.binding.UserMapper.findToMapById", id);
             sqlSession.commit();
             return result;
         } catch (Exception e) {
@@ -61,7 +61,7 @@ public class UserMapper {
     public User findByIdAutoMapping(Integer id) {
         SqlSession sqlSession = Utils.getSqlSession();
         try {
-            User user = sqlSession.selectOne("com.wangtao.dbhelper.mapper.UserMapperr.findByIdAutoMapping", id);
+            User user = sqlSession.selectOne("com.wangtao.dbhelper.binding.UserMapper.findByIdAutoMapping", id);
             sqlSession.commit();
             return user;
         } catch (Exception e) {
@@ -76,7 +76,7 @@ public class UserMapper {
     public List<User> findByEntity(User entity) {
         SqlSession sqlSession = Utils.getSqlSession();
         try {
-            List<User> user = sqlSession.selectList("com.wangtao.dbhelper.mapper.UserMapperr.findByEntity", entity);
+            List<User> user = sqlSession.selectList("com.wangtao.dbhelper.binding.UserMapper.findByEntity", entity);
             sqlSession.commit();
             return user;
         } catch (Exception e) {
@@ -91,7 +91,7 @@ public class UserMapper {
     public List<User> findByMap(Map<String, Object> params) {
         SqlSession sqlSession = Utils.getSqlSession();
         try {
-            List<User> users = sqlSession.selectList("com.wangtao.dbhelper.mapper.UserMapperr.findByMap", params);
+            List<User> users = sqlSession.selectList("com.wangtao.dbhelper.binding.UserMapper.findByMap", params);
             sqlSession.commit();
             return users;
         } catch (Exception e) {
@@ -106,7 +106,7 @@ public class UserMapper {
     public Integer findAgeById(Integer id) {
         SqlSession sqlSession = Utils.getSqlSession();
         try {
-            Integer age = sqlSession.selectOne("com.wangtao.dbhelper.mapper.UserMapperr.findAgeById", id);
+            Integer age = sqlSession.selectOne("com.wangtao.dbhelper.binding.UserMapper.findAgeById", id);
             sqlSession.commit();
             return age;
         } catch (Exception e) {
@@ -121,7 +121,7 @@ public class UserMapper {
     public LocalDate findBirthdayById(Integer id) {
         SqlSession sqlSession = Utils.getSqlSession();
         try {
-            LocalDate birthday = sqlSession.selectOne("com.wangtao.dbhelper.mapper.UserMapperr.findBirthdayById", id);
+            LocalDate birthday = sqlSession.selectOne("com.wangtao.dbhelper.binding.UserMapper.findBirthdayById", id);
             sqlSession.commit();
             return birthday;
         } catch (Exception e) {
@@ -136,7 +136,7 @@ public class UserMapper {
     public int insert(User user) {
         SqlSession sqlSession = Utils.getSqlSession();
         try {
-            int rows = sqlSession.insert("com.wangtao.dbhelper.mapper.UserMapperr.insert", user);
+            int rows = sqlSession.insert("com.wangtao.dbhelper.binding.UserMapper.insert", user);
             sqlSession.commit();
             return rows;
         } catch (Exception e) {
@@ -151,7 +151,7 @@ public class UserMapper {
     public int insertAndReturnKey(User user) {
         SqlSession sqlSession = Utils.getSqlSession();
         try {
-            int rows = sqlSession.insert("com.wangtao.dbhelper.mapper.UserMapperr.insertAndReturnKey", user);
+            int rows = sqlSession.insert("com.wangtao.dbhelper.binding.UserMapper.insertAndReturnKey", user);
             sqlSession.commit();
             return rows;
         } catch (Exception e) {
@@ -166,7 +166,7 @@ public class UserMapper {
     public int delete(Integer id) {
         SqlSession sqlSession = Utils.getSqlSession();
         try {
-            int rows = sqlSession.insert("com.wangtao.dbhelper.mapper.UserMapperr.delete", id);
+            int rows = sqlSession.insert("com.wangtao.dbhelper.binding.UserMapper.delete", id);
             sqlSession.commit();
             return rows;
         } catch (Exception e) {
@@ -184,7 +184,7 @@ public class UserMapper {
     public List<User> findByAgeIn(List<Integer> ages) {
         SqlSession sqlSession = Utils.getSqlSession();
         try {
-            List<User> users = sqlSession.selectList("com.wangtao.dbhelper.mapper.UserMapperr.findByAgeIn", ages);
+            List<User> users = sqlSession.selectList("com.wangtao.dbhelper.binding.UserMapper.findByAgeIn", ages);
             sqlSession.commit();
             return users;
         } catch (RuntimeException e) {
@@ -201,7 +201,7 @@ public class UserMapper {
     public List<User> findByCondition(User condition) {
         SqlSession sqlSession = Utils.getSqlSession();
         try {
-            List<User> users = sqlSession.selectList("com.wangtao.dbhelper.mapper.UserMapperr.findByCondition", condition);
+            List<User> users = sqlSession.selectList("com.wangtao.dbhelper.binding.UserMapper.findByCondition", condition);
             sqlSession.commit();
             return users;
         } catch (RuntimeException e) {

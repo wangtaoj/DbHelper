@@ -120,7 +120,7 @@ public class DefaultSqlSession implements SqlSession {
 
     @Override
     public <T> T getMapper(Class<T> type) {
-        return null;
+        return configuration.getMapper(type, this);
     }
 
     @Override
