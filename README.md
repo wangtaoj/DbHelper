@@ -11,6 +11,7 @@
 3. 支持复杂映射, 通过点操作符导航.
 4. 支持动态SQL. 如if、foreach、trim、where、set、choose when otherwise.
 5. 支持类型别名.
+6. 支持接口绑定.
 
 ### 配置
 
