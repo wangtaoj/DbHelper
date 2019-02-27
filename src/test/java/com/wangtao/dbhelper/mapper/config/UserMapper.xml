@@ -23,7 +23,7 @@
     where id = #{id,jdbcType=INTEGER}
   </select>
 
-  <select id="count" resultType="_int">
+  <select id="count" resultType="int">
     select count(*) from user
   </select>
 

@@ -36,9 +36,5 @@
 			</dataSource>
 		</environment>
 	</environments>
-	
-	<mappers>
-		<mapper resource="com/wangtao/dbhelper/builder/UserMapper.xml" />
-	</mappers>
-	
+
 </configuration>

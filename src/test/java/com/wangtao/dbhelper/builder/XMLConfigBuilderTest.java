@@ -51,7 +51,7 @@ public class XMLConfigBuilderTest {
 
     @Test
     public void parseMybatisConfig() throws IOException {
-        String resource = "com/wangtao/dbhelper/builder/mybatis-config.xml";
+        String resource = "com/wangtao/dbhelper/builder/complex-mybatis-config.xml";
         try (Reader reader = Resources.getResourceAsReader(resource)) {
             XMLConfigBuilder builder = new XMLConfigBuilder(reader);
             Configuration configuration = builder.parse();

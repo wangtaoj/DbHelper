@@ -18,7 +18,7 @@
 	</settings>
 
 	<typeAliases>
-		<typeAlias type="com.wangtao.dbhelper.domian.User" />
+		<typeAlias type="com.wangtao.dbhelper.domian.User" alias="user" />
 		<typeAlias type="com.wangtao.dbhelper.domian.Address" alias="address" />
 	</typeAliases>
 
