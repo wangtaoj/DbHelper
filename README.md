@@ -12,6 +12,7 @@
 4. 支持动态SQL. 如if、foreach、trim、where、set、choose when otherwise.
 5. 支持类型别名.
 6. 支持接口绑定.
+7. 支持执行SQL语句时对SQL，以及参数，结果行数的日志打印(目前只支持SLF4J).
 
 ### 配置
 
