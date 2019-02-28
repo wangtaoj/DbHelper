@@ -19,6 +19,7 @@ public class TypeAliasRegistry {
         register("_int", int.class);
         register("_long", long.class);
         register("integer", Integer.class);
+        register("int", Integer.class);
         register("long", Long.class);
         register("_boolean", boolean.class);
         register("boolean", Boolean.class);
