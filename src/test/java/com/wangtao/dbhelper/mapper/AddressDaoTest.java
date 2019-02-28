@@ -14,13 +14,13 @@ import static org.junit.Assert.assertNotNull;
  * @author wangtao
  * Created at 2019/2/21 16:13
  */
-public class AddressMapperTest {
+public class AddressDaoTest {
 
-    private AddressMapper addressMapper = new AddressMapper();
+    private AddressDao addressDao = new AddressDao();
 
     @Test
     public void findById() {
-        AddressVO vo = addressMapper.findById(1);
+        AddressVO vo = addressDao.findById(1);
         assertNotNull(vo);
         assertEquals(1, vo.getId().intValue());
         assertEquals("湖南", vo.getProvince());
@@ -39,7 +39,7 @@ public class AddressMapperTest {
 
     @Test
     public void findByIdAutoMapping() {
-        AddressVO vo = addressMapper.findByIdAutoMapping(1);
+        AddressVO vo = addressDao.findByIdAutoMapping(1);
         assertNotNull(vo);
         assertEquals(1, vo.getId().intValue());
         assertEquals("湖南", vo.getProvince());

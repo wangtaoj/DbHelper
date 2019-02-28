@@ -11,7 +11,7 @@ import java.util.Map;
  * @author wangtao
  * Created at 2019/2/21 9:40
  */
-public class UserMapper {
+public class UserDao {
 
     public User findById(Integer id) {
         SqlSession sqlSession = Utils.getSqlSession();
@@ -19,13 +19,12 @@ public class UserMapper {
             User user = sqlSession.selectOne("com.wangtao.dbhelper.binding.UserMapper.findById", id);
             sqlSession.commit();
             return user;
-        } catch (Exception e) {
-            e.printStackTrace();
+        } catch (RuntimeException e) {
             sqlSession.rollback();
+            throw e;
         } finally {
             sqlSession.close();
         }
-        return null;
     }
 
     public int count() {
@@ -34,13 +33,12 @@ public class UserMapper {
             int rows = sqlSession.selectOne("com.wangtao.dbhelper.binding.UserMapper.count");
             sqlSession.commit();
             return rows;
-        } catch (Exception e) {
-            e.printStackTrace();
+        } catch (RuntimeException e) {
             sqlSession.rollback();
+            throw e;
         } finally {
             sqlSession.close();
         }
-        return 0;
     }
 
     public Map<String, Object> findToMapById(Integer id) {
@@ -49,13 +47,12 @@ public class UserMapper {
             Map<String, Object> result = sqlSession.selectOne("com.wangtao.dbhelper.binding.UserMapper.findToMapById", id);
             sqlSession.commit();
             return result;
-        } catch (Exception e) {
-            e.printStackTrace();
+        } catch (RuntimeException e) {
             sqlSession.rollback();
+            throw e;
         } finally {
             sqlSession.close();
         }
-        return null;
     }
 
     public User findByIdAutoMapping(Integer id) {
@@ -64,13 +61,12 @@ public class UserMapper {
             User user = sqlSession.selectOne("com.wangtao.dbhelper.binding.UserMapper.findByIdAutoMapping", id);
             sqlSession.commit();
             return user;
-        } catch (Exception e) {
-            e.printStackTrace();
+        } catch (RuntimeException e) {
             sqlSession.rollback();
+            throw e;
         } finally {
             sqlSession.close();
         }
-        return null;
     }
 
     public List<User> findByEntity(User entity) {
@@ -79,13 +75,12 @@ public class UserMapper {
             List<User> user = sqlSession.selectList("com.wangtao.dbhelper.binding.UserMapper.findByEntity", entity);
             sqlSession.commit();
             return user;
-        } catch (Exception e) {
-            e.printStackTrace();
+        } catch (RuntimeException e) {
             sqlSession.rollback();
+            throw e;
         } finally {
             sqlSession.close();
         }
-        return null;
     }
 
     public List<User> findByMap(Map<String, Object> params) {
@@ -94,13 +89,12 @@ public class UserMapper {
             List<User> users = sqlSession.selectList("com.wangtao.dbhelper.binding.UserMapper.findByMap", params);
             sqlSession.commit();
             return users;
-        } catch (Exception e) {
-            e.printStackTrace();
+        } catch (RuntimeException e) {
             sqlSession.rollback();
+            throw e;
         } finally {
             sqlSession.close();
         }
-        return null;
     }
 
     public Integer findAgeById(Integer id) {
@@ -109,13 +103,12 @@ public class UserMapper {
             Integer age = sqlSession.selectOne("com.wangtao.dbhelper.binding.UserMapper.findAgeById", id);
             sqlSession.commit();
             return age;
-        } catch (Exception e) {
-            e.printStackTrace();
+        } catch (RuntimeException e) {
             sqlSession.rollback();
+            throw e;
         } finally {
             sqlSession.close();
         }
-        return null;
     }
 
     public LocalDate findBirthdayById(Integer id) {
@@ -124,13 +117,12 @@ public class UserMapper {
             LocalDate birthday = sqlSession.selectOne("com.wangtao.dbhelper.binding.UserMapper.findBirthdayById", id);
             sqlSession.commit();
             return birthday;
-        } catch (Exception e) {
-            e.printStackTrace();
+        } catch (RuntimeException e) {
             sqlSession.rollback();
+            throw e;
         } finally {
             sqlSession.close();
         }
-        return null;
     }
 
     public int insert(User user) {
@@ -139,13 +131,12 @@ public class UserMapper {
             int rows = sqlSession.insert("com.wangtao.dbhelper.binding.UserMapper.insert", user);
             sqlSession.commit();
             return rows;
-        } catch (Exception e) {
-            e.printStackTrace();
+        } catch (RuntimeException e) {
             sqlSession.rollback();
+            throw e;
         } finally {
             sqlSession.close();
         }
-        return 0;
     }
 
     public int insertAndReturnKey(User user) {
@@ -169,13 +160,12 @@ public class UserMapper {
             int rows = sqlSession.insert("com.wangtao.dbhelper.binding.UserMapper.delete", id);
             sqlSession.commit();
             return rows;
-        } catch (Exception e) {
-            e.printStackTrace();
+        } catch (RuntimeException e) {
             sqlSession.rollback();
+            throw e;
         } finally {
             sqlSession.close();
         }
-        return 0;
     }
 
     /*

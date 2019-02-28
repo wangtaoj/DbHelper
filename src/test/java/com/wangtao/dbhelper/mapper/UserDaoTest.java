@@ -15,16 +15,16 @@ import static org.junit.Assert.*;
  * @author wangtao
  * Created at 2019/2/21 10:22
  */
-public class UserMapperTest {
+public class UserDaoTest {
 
-    UserMapper userMapper = new UserMapper();
+    UserDao userDao = new UserDao();
 
     /**
      * 简单参数测试, 返回实体对象
      */
     @Test
     public void findById() {
-        User user = userMapper.findById(1);
+        User user = userDao.findById(1);
         assertNotNull(user);
         assertEquals(1, user.getId().intValue());
         assertEquals("wangtao", user.getUsername());
@@ -40,7 +40,7 @@ public class UserMapperTest {
      */
     @Test
     public void findToMapById() {
-        Map<String, Object> map = userMapper.findToMapById(1);
+        Map<String, Object> map = userDao.findToMapById(1);
         assertNotNull(map);
         assertEquals(1, map.get("id"));
         assertEquals("wangtao", map.get("username"));
@@ -55,7 +55,7 @@ public class UserMapperTest {
      */
     @Test
     public void findByIdAutoMapping() {
-        User user = userMapper.findByIdAutoMapping(1);
+        User user = userDao.findByIdAutoMapping(1);
         assertNotNull(user);
         assertEquals(Integer.valueOf(1), user.getId());
         assertEquals("wangtao", user.getUsername());
@@ -74,7 +74,7 @@ public class UserMapperTest {
         User entity = new User();
         entity.setAge(21);
         entity.setGender(1);
-        List<User> users = userMapper.findByEntity(entity);
+        List<User> users = userDao.findByEntity(entity);
         assertEquals(2, users.size());
     }
 
@@ -85,7 +85,7 @@ public class UserMapperTest {
     public void findByMap() {
         Map<String, Object> map = new HashMap<>();
         map.put("age", 21);
-        List<User> users = userMapper.findByMap(map);
+        List<User> users = userDao.findByMap(map);
         assertTrue(users.isEmpty());
     }
 
@@ -94,7 +94,7 @@ public class UserMapperTest {
      */
     @Test
     public void count() {
-        int count = userMapper.count();
+        int count = userDao.count();
         assertEquals(12, count);
     }
 
@@ -103,7 +103,7 @@ public class UserMapperTest {
      */
     @Test
     public void findAgeById() {
-        Integer age = userMapper.findAgeById(1);
+        Integer age = userDao.findAgeById(1);
         assertEquals(20, age.intValue());
     }
 
@@ -112,7 +112,7 @@ public class UserMapperTest {
      */
     @Test
     public void findBirthdayById() {
-        LocalDate birthday = userMapper.findBirthdayById(1);
+        LocalDate birthday = userDao.findBirthdayById(1);
         assertEquals(LocalDate.of(1997, 5, 3), birthday);
     }
 
@@ -127,9 +127,9 @@ public class UserMapperTest {
         user.setAge(21);
         user.setGender(1);
         user.setBirthday(LocalDate.of(1997, 5, 3));
-        int rows = userMapper.insertAndReturnKey(user);
+        int rows = userDao.insertAndReturnKey(user);
         assertEquals(1, rows);
-        rows = userMapper.delete(user.getId());
+        rows = userDao.delete(user.getId());
         assertEquals(1, rows);
     }
 
@@ -139,7 +139,7 @@ public class UserMapperTest {
     @Test
     public void findByAgeIn() {
         List<Integer> ages = Arrays.asList(20, 21);
-        List<User> users = userMapper.findByAgeIn(ages);
+        List<User> users = userDao.findByAgeIn(ages);
         assertNotNull(users);
         assertEquals(3, users.size());
     }
@@ -150,12 +150,12 @@ public class UserMapperTest {
     @Test
     public void findByCondition() {
         User user = new User();
-        List<User> users = userMapper.findByCondition(user);
+        List<User> users = userDao.findByCondition(user);
         assertNotNull(users);
         assertEquals(12, users.size());
         user.setUsername("wangtao");
         user.setPassword("123456");
-        users = userMapper.findByCondition(user);
+        users = userDao.findByCondition(user);
         assertEquals(1, users.size());
         user = users.get(0);
         assertEquals(1, user.getId().intValue());

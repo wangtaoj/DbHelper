@@ -1,52 +1,52 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
-<mapper namespace="com.wangtao.dbhelper.mapper.AddressMapper">
+<mapper namespace="com.wangtao.dbhelper.binding.AddressMapper">
 
   <resultMap id="ComplexMap" type="com.wangtao.dbhelper.domian.AddressVO">
-    <id column="ID" property="id" />
-    <result column="CITY" property="city" />
-    <result column="PROVINCE" property="province" />
-    <result column="ADDRESS" property="address" />
-    <result column="u_id" property="user.id" />
-    <result column="u_username" property="user.username" />
-    <result column="u_password" property="user.password" />
-    <result column="u_age" property="user.age" />
+    <id column="ID" property="id"/>
+    <result column="CITY" property="city"/>
+    <result column="PROVINCE" property="province"/>
+    <result column="ADDRESS" property="address"/>
+    <result column="u_id" property="user.id"/>
+    <result column="u_username" property="user.username"/>
+    <result column="u_password" property="user.password"/>
+    <result column="u_age" property="user.age"/>
     <result column="u_gender" property="user.gender"/>
-    <result column="u_birthday" property="user.birthday" />
-    <result column="u_update_time" property="user.updateTime" />
+    <result column="u_birthday" property="user.birthday"/>
+    <result column="u_update_time" property="user.updateTime"/>
   </resultMap>
 
   <select id="findById" resultMap="ComplexMap">
     SELECT
-      a.id AS id,
-      a.city AS city,
-      a.province AS province,
-      a.address AS address,
-      u.id AS u_id,
-      u.username AS u_username,
-      u.password AS u_password,
-      u.age AS u_age,
-      u.gender AS u_gender,
-      u.birthday AS u_birthday,
+      a.id          AS id,
+      a.city        AS city,
+      a.province    AS province,
+      a.address     AS address,
+      u.id          AS u_id,
+      u.username    AS u_username,
+      u.password    AS u_password,
+      u.age         AS u_age,
+      u.gender      AS u_gender,
+      u.birthday    AS u_birthday,
       u.update_time AS u_update_time
     FROM address a
-    LEFT JOIN user u
-    ON a.USER_ID = u.id
+      LEFT JOIN user u
+        ON a.USER_ID = u.id
     WHERE a.ID = #{id}
   </select>
 
   <select id="findByIdAutoMapping" resultType="com.wangtao.dbhelper.domian.AddressVO">
     SELECT
-      a.id AS id,
-      a.city AS city,
-      a.province AS province,
-      a.address AS address,
-      u.id AS `user.id`,
-      u.username AS `user.username`,
-      u.password AS `user.password`,
-      u.age AS `user.age`,
-      u.gender AS `user.gender`,
-      u.birthday AS `user.birthday`,
+      a.id          AS id,
+      a.city        AS city,
+      a.province    AS province,
+      a.address     AS address,
+      u.id          AS `user.id`,
+      u.username    AS `user.username`,
+      u.password    AS `user.password`,
+      u.age         AS `user.age`,
+      u.gender      AS `user.gender`,
+      u.birthday    AS `user.birthday`,
       u.update_time AS `user.updateTime`
     FROM address a
       LEFT JOIN user u
