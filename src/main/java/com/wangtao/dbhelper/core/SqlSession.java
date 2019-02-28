@@ -1,6 +1,7 @@
 package com.wangtao.dbhelper.core;
 
 import java.io.Closeable;
+import java.sql.Connection;
 import java.util.List;
 
 /**
@@ -75,6 +76,12 @@ public interface SqlSession extends Closeable {
      * @return 返回Mapper接口实例
      */
     <T> T getMapper(Class<T> type);
+
+    /**
+     * 获取连接对象
+     * @return Connection对象
+     */
+    Connection getConnection();
 
     /**
      * 关闭会话.

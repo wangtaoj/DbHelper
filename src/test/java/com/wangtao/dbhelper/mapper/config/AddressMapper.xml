@@ -16,6 +16,20 @@
     <result column="u_update_time" property="user.updateTime"/>
   </resultMap>
 
+  <insert id="insert">
+    INSERT INTO address
+    (
+      ID, PROVINCE, CITY, ADDRESS, USER_ID
+    ) VALUES
+      (
+        NULL, #{province}, #{city}, #{address}, #{userId}
+      )
+  </insert>
+
+  <select id="count" resultType="int">
+    SELECT COUNT(*) FROM address
+  </select>
+
   <select id="findById" resultMap="ComplexMap">
     SELECT
       a.id          AS id,

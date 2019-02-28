@@ -23,7 +23,7 @@ public class SimpleExecutor implements Executor {
 
     protected boolean closed;
 
-    protected Configuration configuration;
+    protected final Configuration configuration;
 
     public SimpleExecutor(Configuration configuration, Transaction transaction) {
         this.configuration = configuration;
@@ -53,6 +53,11 @@ public class SimpleExecutor implements Executor {
         }
     }
 
+    @Override
+    public Connection getConnection() throws SQLException {
+        return transaction.getConnection();
+    }
+
     private Statement prepareStatement(StatementHandler handler, MappedStatement ms) {
         try {
             Connection connection = getConnection(ms);
@@ -74,24 +79,26 @@ public class SimpleExecutor implements Executor {
     }
 
     @Override
-    public void commit() throws SQLException {
-        if (!closed) {
+    public void commit(boolean required) throws SQLException {
+        if (!closed && required) {
             transaction.commit();
         }
     }
 
     @Override
-    public void rollback() throws SQLException {
-        if (!closed) {
+    public void rollback(boolean required) throws SQLException {
+        if (!closed && required) {
             transaction.rollback();
         }
     }
 
     @Override
-    public void close() throws SQLException {
+    public void close(boolean isNeedRollback) throws SQLException {
         if (!closed) {
+            rollback(isNeedRollback);
             transaction.close();
             closed = true;
+            transaction = null;
         }
     }
 }

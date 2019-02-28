@@ -94,16 +94,24 @@ public class JdbcTransaction implements Transaction {
         }
     }
 
+    /**
+     * 在没有显示commit, rollback的时候, 如果这个事务里只有查询语句, 那么session被close时,
+     * 不会对事务进行回滚, 我们需要重置连接的自动提交模式, 当在事务期间调用conn.setAutoCommit时
+     * 会提交当前事务, 这样在没有显示提交或者回滚事务的情况时, 事务都能正常退出, 要么被回滚(session.close())
+     * 要么会提交(conn.setAutoCommit(true))
+     */
     private void resetAutoCommit() {
         try {
             if (!connection.getAutoCommit()) {
                 connection.setAutoCommit(true);
-                if(logger.isDebugEnabled()) {
+                if (logger.isDebugEnabled()) {
                     logger.debug("Reset value of autocommit to true on connection[" + connection.hashCode() + "].");
                 }
             }
         } catch (SQLException e) {
-            throw new TransactionException("设置事务自动提交属性失败, 驱动不支持!", e);
+            if (logger.isDebugEnabled()) {
+                logger.debug("Error resetting value of autoCommit to true before closing the connection. Cause: " + e);
+            }
         }
     }
 }
